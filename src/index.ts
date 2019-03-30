@@ -7,37 +7,16 @@
  * - Listen on port 70.
  */
 
+import * as fsNoPromises from "fs";
 import * as net from "net";
 import * as path from "path";
-import * as fsNoPromises from "fs";
+import { publicDirectoryAbsolute } from "./config";
 const fs = fsNoPromises.promises;
 
+export type GopherText = string;
 
-const server = net.createServer((socket => {
-  socket.setEncoding("utf8")
-  socket.on("data", (data: Buffer) => {
-    console.log("data received");
-    handleUserInput(data, socket);
-  });
-  socket.on("end", () => {
-    console.log("end event fired");
-  })
-  socket.on("close", (hadError) => {
-    if (hadError) {
-      console.log("there was an error onclose.")
-    }
-  });
-}));
-
-server.on('error', (err) => {
-  throw err;
-});
-
-server.listen(70, () => {
-  console.log('server bound');
-});
-
-const rootDir = "./directory";
+const hostname = "localhost";
+const gopherPort = 70;
 
 export interface IFileData {
   isFile: boolean;
@@ -46,58 +25,127 @@ export interface IFileData {
   location: string;
 }
 
-const transformToGopher = (dirContents: IFileData[]): string => {
-  return dirContents.reduce((accum, file, index) => {
-    let canonicalType = 3;
-    if (file.isDirectory) {
-      canonicalType = 1;
-    } else if (file.isFile) {
-      canonicalType = 0;
+const server = net.createServer(socket => {
+  socket.on("data", data => {
+    handleUserInput(data, socket);
+  });
+  socket.on("close", hadError => {
+    if (hadError) {
+      console.log("there was an error onclose.");
     }
-    const descriptor = file.name;
-    const fileName = file.name;
-    const hostname = "localhost";
-    const port = 70;
+  });
+});
 
-    /**
-     * CANONICAL TYPE AND DESCRIPTOR MUST NOT HAVE A BREAK BETWEEN THEM!
-     */
-    accum += `${canonicalType}${descriptor}\t${fileName}\t${hostname}\t${port}\n`;
+server.on("error", err => {
+  throw err;
+});
 
-    if (index === (dirContents.length - 1)) {
-      accum += ".";
-    }
+server.listen(70, () => {
+  console.log("Gopher server started on port 70!");
+});
 
-    return accum;
-  }, "");
+const isEmptyCRLF = (input: string) => input === "\r\n";
+
+const checkType = async (
+  path: string
+): Promise<"directory" | "file" | "error"> => {
+  let result;
+  let error = false;
+  try {
+    result = await fs.stat(path);
+  } catch (err) {
+    console.error(err);
+    error = true;
+  }
+  if (error) {
+    return "error";
+  }
+  const file = result.isFile();
+  const directory = result.isDirectory();
+  if (file) {
+    return "file";
+  }
+  if (directory) {
+    return "directory";
+  }
+  return "error";
 };
 
-const isEmptyCRLF = (input: string) => {
-  const [one, two] = input.split("\r\n");
-  return one === "" && two === "";
+export interface IPreGopher {
+  selector: number;
+  description: string;
+  handler: string;
 }
 
-const handleUserInput = async (text: string, socket: net.Socket): Promise<void> => {
-  const isEmptyMessage = isEmptyCRLF(text);
-  if (isEmptyMessage) {
-    const directory = await fs.readdir(rootDir);
-    const contents: IFileData[] = await Promise.all(directory.map(async item => {
-      const location = path.join(__dirname, "../" + rootDir + "/" + item) 
-      const stat = await fs.stat(location);
-      return {
-        isFile: stat.isFile(),
-        isDirectory: stat.isDirectory(),
-        location,
-        name: item,
-      }
-    }));
-    console.log("cool it's right!", JSON.stringify(transformToGopher(contents)));
-    socket.write(transformToGopher(contents));
-    socket.end();
-    return;
-  }
-  console.log("no bueno")
-  socket.end();
+const transformDirectoryToGopherString = (dir: IPreGopher[]): string => {
+  const unterminatedGopher = dir.reduce((gopher, entry) => {
+    return (gopher += `${entry.selector}${entry.description}\t${
+      entry.handler
+    }\t${hostname}\t${gopherPort}\r\n`);
+  }, "");
+  return unterminatedGopher + "."; // . is the termination character.
 };
 
-// gopher://localhost:70
+const getGopherByFileHandle = async (handle: string): Promise<string> => {
+  const selectorPath = path.join(publicDirectoryAbsolute, handle);
+  const type = await checkType(selectorPath);
+  if (type === "file") {
+    return await fs.readFile(selectorPath, { encoding: "utf8" });
+  }
+  if (type === "directory") {
+    const dirents = await fs.readdir(selectorPath);
+    const contents = await Promise.all(
+      dirents.map(async (dirent: string) => {
+        return {
+          type: await checkType(selectorPath + "/" + dirent),
+          name: dirent
+        };
+      })
+    );
+    const preGopher: IPreGopher[] = contents.map(a => {
+      let selector;
+      if (a.type === "file") {
+        selector = 0;
+      } else if (a.type === "directory") {
+        selector = 1;
+      } else if (a.type === "error") {
+        selector = 3;
+      }
+      return {
+        selector,
+        description: a.name,
+        handler: handle + "/" + a.name
+      };
+    });
+    return transformDirectoryToGopherString(preGopher);
+  }
+  return transformDirectoryToGopherString([
+    {
+      selector: 3,
+      description: "There was an error",
+      handler: "ERROR"
+    }
+  ]);
+};
+
+const filterInput = (input: string): string => {
+  if (input === "\r\n") return input;
+  return input.replace("\n", "").replace("\r", "");
+};
+
+const handleUserInput = async (
+  text: Buffer,
+  socket: net.Socket
+): Promise<void> => {
+  const message = filterInput(text.toString());
+  const isEmptyMessage = isEmptyCRLF(message);
+
+  let response;
+  if (isEmptyMessage) {
+    response = await getGopherByFileHandle(".");
+  } else {
+    response = await getGopherByFileHandle(message);
+  }
+  socket.write(response);
+  socket.end();
+};
