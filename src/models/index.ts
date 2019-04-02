@@ -6,3 +6,9 @@ export interface IFileData {
   name: string;
   location: string;
 }
+
+export interface IPreGopher {
+  selector: number;
+  description: string;
+  handler: string;
+}

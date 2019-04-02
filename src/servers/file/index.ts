@@ -1,12 +1,11 @@
 import * as fsNoPromises from "fs";
+import { inject, injectable } from "inversify";
 import * as net from "net";
 import * as path from "path";
-import {
-  filterInput,
-  IPreGopher,
-  isEmptyCRLF,
-  transformInformationToGopherText
-} from "../../core";
+import { IGopherCore } from "../../core";
+import { IPreGopher } from "../../models";
+import { TYPES } from "../../types";
+
 const fs = fsNoPromises.promises;
 
 export interface IGopherFileServer {
@@ -15,22 +14,27 @@ export interface IGopherFileServer {
    */
   start: () => void;
   /** Initialiases the gopher server, this must be run before starting. */
-  init: () => void;
+  init: () => Promise<void>;
 }
 
+@injectable()
 export class GopherFileServer implements IGopherFileServer {
   private directory: string;
   private server: net.Server;
   private initialised = false;
   private debug: boolean;
 
-  constructor(directory: string, debug = false) {
+  constructor(
+    directory: string,
+    debug = false,
+    @inject(TYPES.GopherCore) private _gopherCore: IGopherCore
+  ) {
     this.directory = directory;
     this.debug = debug;
   }
 
   private async getGopher(handle: string): Promise<string> {
-    const direntPath = isEmptyCRLF(handle)
+    const direntPath = this._gopherCore.isEmptyCRLF(handle)
       ? this.directory
       : path.join(this.directory, handle);
 
@@ -62,9 +66,12 @@ export class GopherFileServer implements IGopherFileServer {
           handler: `${handle}/${directoryDirents[index]}`
         };
       });
-      return transformInformationToGopherText(preGopher, "localhost");
+      return this._gopherCore.transformInformationToGopherText(
+        preGopher,
+        "localhost"
+      );
     }
-    return transformInformationToGopherText(
+    return this._gopherCore.transformInformationToGopherText(
       [
         {
           selector: 3,
@@ -80,7 +87,7 @@ export class GopherFileServer implements IGopherFileServer {
     data: Buffer,
     socket: net.Socket
   ): Promise<void> {
-    const message = filterInput(data.toString());
+    const message = this._gopherCore.filterInput(data.toString());
 
     const response = await this.getGopher(message);
 

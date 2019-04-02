@@ -1,4 +1,6 @@
-import { GopherFileServer } from "./servers/file";
+import { myContainer } from "./inversify.config";
+import { IGopherFileServer } from "./servers/file";
+import { TYPES } from "./types";
 
 /**
  * What this server should do:
@@ -9,11 +11,8 @@ import { GopherFileServer } from "./servers/file";
  * - Listen on port 70.
  */
 
-const GopherServer = new GopherFileServer(
-  "/Users/koryporter/Projects/gopher/director",
-  false
-);
+myContainer.get<IGopherFileServer>(TYPES.GopherFileServer);
 
-GopherServer.init()
-  .then(() => GopherServer.start())
-  .catch(console.error);
+// GopherServer.init()
+//   .then(() => GopherServer.start())
+//   .catch(console.error);

@@ -9,15 +9,14 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "lib": ["esnext"],
+    "types": ["reflect-metadata", "node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "sourceMap": true,
     "outDir": "./compiled",
     "declaration": true,
     "typeRoots": ["node_modules/@types", "src/types"]
   },
-  "include": [
-    "src/**/*.ts",
-  ],
-  "exclude": [
-    "./node_modules"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["./node_modules"]
 }
