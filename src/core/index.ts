@@ -1,5 +1,4 @@
 import { injectable } from "inversify";
-import "reflect-metadata";
 import { GopherText, IPreGopher } from "../models";
 
 export interface IGopherCore {

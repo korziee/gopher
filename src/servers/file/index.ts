@@ -4,9 +4,18 @@ import * as net from "net";
 import * as path from "path";
 import { IGopherCore } from "../../core";
 import { IPreGopher } from "../../models";
-import { TYPES } from "../../types";
+import { Symbols } from "../../symbols";
 
 const fs = fsNoPromises.promises;
+
+/**
+ * What this server should do:
+ * - Given a source directory location, list the files/folders in gopher protocol.
+ * - The client should be able to select a folder, which should then display the sub contents
+ * - The client should be able to select a file, which should then sent back the contents of the file.
+ * - We should support only .txt files
+ * - Listen on port 70.
+ */
 
 export interface IGopherFileServer {
   /**
@@ -14,7 +23,7 @@ export interface IGopherFileServer {
    */
   start: () => void;
   /** Initialiases the gopher server, this must be run before starting. */
-  init: () => Promise<void>;
+  init: (directory: string, debug?: boolean) => Promise<void>;
 }
 
 @injectable()
@@ -24,26 +33,18 @@ export class GopherFileServer implements IGopherFileServer {
   private initialised = false;
   private debug: boolean;
 
-  constructor(
-    directory: string,
-    debug = false,
-    @inject(TYPES.GopherCore) private _gopherCore: IGopherCore
-  ) {
-    this.directory = directory;
-    this.debug = debug;
-  }
+  public constructor(
+    @inject(Symbols.GopherCore) private _gopherCore: IGopherCore
+  ) {}
 
   private async getGopher(handle: string): Promise<string> {
     const direntPath = this._gopherCore.isEmptyCRLF(handle)
       ? this.directory
       : path.join(this.directory, handle);
-
     const direntType = await this.getDirentType(direntPath);
-
     if (direntType === "file") {
       return await fs.readFile(direntPath, { encoding: "utf8" });
     }
-
     if (direntType === "directory") {
       const directoryDirents = await fs.readdir(direntPath);
       const directoryContents = await Promise.all(
@@ -88,9 +89,7 @@ export class GopherFileServer implements IGopherFileServer {
     socket: net.Socket
   ): Promise<void> {
     const message = this._gopherCore.filterInput(data.toString());
-
     const response = await this.getGopher(message);
-
     socket.write(response);
     socket.end();
   }
@@ -111,7 +110,6 @@ export class GopherFileServer implements IGopherFileServer {
       }
     }
   }
-
   private async getDirentType(
     direntPath: string
   ): Promise<"directory" | "file" | "error" | null> {
@@ -133,7 +131,10 @@ export class GopherFileServer implements IGopherFileServer {
     return null;
   }
 
-  public async init() {
+  public async init(directory: string, debug = false) {
+    this.directory = directory;
+    this.debug = debug;
+
     const type = await this.getDirentType(this.directory);
     if (type !== "directory") {
       throw new Error(
@@ -150,7 +151,6 @@ export class GopherFileServer implements IGopherFileServer {
         }
       });
     });
-
     this.server.on("error", err => {
       throw err;
     });
