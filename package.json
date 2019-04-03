@@ -8,10 +8,12 @@
   "license": "MIT",
   "scripts": {
     "build:watch": "npx tsc -w",
-    "start": "npx nodemon compiled/index.js -w compiled"
+    "start": "npx nodemon compiled/index.js -w compiled",
+    "test": "tsc && ava compiled/tests"
   },
   "devDependencies": {
     "@types/node": "^11.13.0",
+    "ava": "^1.4.1",
     "inversify": "^5.0.1",
     "nodemon": "^1.18.10",
     "reflect-metadata": "^0.1.13",
