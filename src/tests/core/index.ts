@@ -1,8 +1,8 @@
 import test from "ava";
 import { IGopherCore } from "../../core";
 import { myContainer } from "../../inversify.config";
-import { Symbols } from "../../symbols";
 import { IPreGopher } from "../../models";
+import { Symbols } from "../../symbols";
 
 test("isEmptyCRLF returns false if not CRLF", t => {
   const core = myContainer.get<IGopherCore>(Symbols.GopherCore);
