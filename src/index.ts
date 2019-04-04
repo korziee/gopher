@@ -6,6 +6,6 @@ const GopherServer = myContainer.get<IGopherFileServer>(
   Symbols.GopherFileServer
 );
 
-GopherServer.init("/Users/koryporter/Projects/gopher/directory", true)
+GopherServer.init(`${process.env.PWD}/directory`, true)
   .then(() => GopherServer.start())
   .catch(console.error);

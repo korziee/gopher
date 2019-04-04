@@ -64,7 +64,9 @@ export class GopherFileServer implements IGopherFileServer {
         return {
           selector,
           description: directoryDirents[index],
-          handler: `${handle}/${directoryDirents[index]}`
+          handler: `${this._gopherCore.isEmptyCRLF(handle) ? "" : handle}/${
+            directoryDirents[index]
+          }`
         };
       });
       return this._gopherCore.transformInformationToGopherText(
@@ -138,7 +140,9 @@ export class GopherFileServer implements IGopherFileServer {
     const type = await this.getDirentType(this.directory);
     if (type !== "directory") {
       throw new Error(
-        "Root directory must exist when a new gopher file server is created."
+        `Root directory must exist when a new gopher file server is created. Directory: ${
+          this.directory
+        }`
       );
     }
     this.server = net.createServer(socket => {
