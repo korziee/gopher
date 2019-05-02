@@ -1,4 +1,5 @@
-import { GopherFileServer } from "./servers/file";
+// import { GopherFileServer } from "./servers/file";
+import { GopherNrlServer } from "./servers/nrl";
 
 /**
  * What this server should do:
@@ -9,10 +10,12 @@ import { GopherFileServer } from "./servers/file";
  * - Listen on port 70.
  */
 
-const GopherServer = new GopherFileServer(
-  "/Users/koryporter/Projects/gopher/director",
-  false
-);
+// const GopherServer = new GopherFileServer(
+//   "/Users/koryporter/Projects/gopher/directory",
+//   false
+// );
+
+const GopherServer = new GopherNrlServer();
 
 GopherServer.init()
   .then(() => GopherServer.start())
