@@ -1,10 +1,15 @@
 import { GopherText } from "../models";
 
 export interface IPreGopher {
-  selector: number;
+  selector: number | "i";
   description: string;
   handler: string;
 }
+export const emptyGopherLine = (): IPreGopher => ({
+  description: "",
+  handler: "",
+  selector: "i"
+});
 
 export const transformInformationToGopherText = (
   dir: IPreGopher[],

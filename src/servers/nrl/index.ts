@@ -1,10 +1,17 @@
+import { getMatchesByRound, INrlMatch } from "@korziee/nrl/compiled/index";
+import * as datefns from "date-fns";
 import * as net from "net";
 import {
+  emptyGopherLine,
   filterInput,
   IPreGopher,
   isEmptyCRLF,
   transformInformationToGopherText
 } from "../../core";
+
+interface IGopherNrlMatch extends INrlMatch {
+  id: string;
+}
 
 export interface IGopherNrlServer {
   /**
@@ -15,58 +22,65 @@ export interface IGopherNrlServer {
   init: () => void;
 }
 
-interface INrlGame {
-  id: string;
-  name: string;
-  home: {
-    name: string;
-    score: number;
-  };
-  away: {
-    name: string;
-    score: number;
-  };
-}
-
 export class GopherNrlServer implements IGopherNrlServer {
   private server: net.Server;
   private initialised: boolean;
-  private games: INrlGame[];
+  private games: IGopherNrlMatch[];
 
-  private async fetchNrlGames(): Promise<INrlGame[]> {
+  private async fetchNrlGames(): Promise<IGopherNrlMatch[]> {
     if (this.games) {
       return this.games;
     }
-    this.games = [
-      {
-        away: {
-          name: "Broncos",
-          score: 0
-        },
-        home: {
-          name: "Rabbitohs",
-          score: 24
-        },
-        id: "rabbitohs-broncos",
-        name: "Rabbitohs Vs Broncos"
-      }
-    ];
+    const games = await getMatchesByRound();
+    this.games = games.map(game => ({
+      ...game,
+      id: `${game.homeTeam.name}-${game.awayTeam.name}`.toLowerCase()
+    }));
     return this.games;
   }
 
   private async getGopher(message: string): Promise<string> {
     const games = await this.fetchNrlGames();
-    console.log("un here", isEmptyCRLF(message));
     if (isEmptyCRLF(message)) {
       // return list as games.
-      const nrlGames: IPreGopher[] = games.map(
-        (game): IPreGopher => ({
-          description: game.name,
-          handler: game.id,
-          selector: 1
-        })
+      const gamesStarted: IPreGopher[] = games
+        .filter(game => ["Post", "Current"].includes(game.matchMode))
+        .map(
+          (game): IPreGopher => ({
+            description: `${game.homeTeam.name} Vs ${game.awayTeam.name}`,
+            handler: game.id,
+            selector: 1
+          })
+        );
+
+      const gamesNotYetStarted: IPreGopher[] = games
+        .filter(game => ["Pre"].includes(game.matchMode))
+        .map(
+          (game): IPreGopher => ({
+            description: `${game.homeTeam.name} Vs ${game.awayTeam.name}`,
+            handler: game.id,
+            selector: 1
+          })
+        );
+
+      return transformInformationToGopherText(
+        [
+          {
+            description: "Games Below This Have Started",
+            handler: "",
+            selector: "i"
+          },
+          ...gamesStarted,
+          emptyGopherLine(),
+          {
+            description: "Games Below This Have Not Started",
+            handler: "",
+            selector: "i"
+          },
+          ...gamesNotYetStarted
+        ],
+        ""
       );
-      return transformInformationToGopherText(nrlGames, "localhost");
     }
 
     const selectedGame = games.find(g => g.id === message);
@@ -87,20 +101,41 @@ export class GopherNrlServer implements IGopherNrlServer {
     return transformInformationToGopherText(
       [
         {
-          description: `${selectedGame.home.name} - ${selectedGame.home.score}`,
-          handler: selectedGame.home.name,
-          selector: 1
+          description: `(H) ${selectedGame.homeTeam.name} - ${
+            selectedGame.homeTeam.score
+          }`,
+          handler: selectedGame.homeTeam.name,
+          selector: "i"
         },
         {
-          description: `${selectedGame.away.name} - ${selectedGame.away.score}`,
-          handler: selectedGame.away.name,
-          selector: 1
+          description: `(A) ${selectedGame.awayTeam.name} - ${
+            selectedGame.awayTeam.score
+          }`,
+          handler: selectedGame.awayTeam.name,
+          selector: "i"
+        },
+        emptyGopherLine(),
+        {
+          description: `Venue - ${selectedGame.venue}`,
+          handler: "",
+          selector: "i"
+        },
+        {
+          description: `Kickoff - ${datefns.format(
+            selectedGame.clock.kickOffTime,
+            "dddd Do MMM, h:mm a"
+          )}`,
+          handler: "",
+          selector: "i"
+        },
+        {
+          description: `Game Clock - ${selectedGame.clock.currentGameTime}`,
+          handler: "",
+          selector: "i"
         }
       ],
       "localhost"
     );
-
-    return "";
   }
 
   private async handleUserInput(data: Buffer, socket: net.Socket) {
