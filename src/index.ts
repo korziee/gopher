@@ -1,5 +1,6 @@
 // import { GopherFileServer } from "./servers/file";
-import { GopherNrlServer } from "./servers/nrl";
+// import { GopherNrlServer } from "./servers/nrl";
+import { RootServer } from "./servers/root";
 
 /**
  * What this server should do:
@@ -10,13 +11,19 @@ import { GopherNrlServer } from "./servers/nrl";
  * - Listen on port 70.
  */
 
-// const GopherServer = new GopherFileServer(
-//   "/Users/koryporter/Projects/gopher/directory",
-//   false
-// );
+/**
+ * Essentially we want a master gopher server,
+ * one that serves all of the servers in the server folder at the root only, and then for requests after
+ * the root they are dispersed to the relevant server.
+ */
 
-const GopherServer = new GopherNrlServer();
+// const GopherServer = new GopherNrlServer();
 
-GopherServer.init()
-  .then(() => GopherServer.start())
-  .catch(console.error);
+// GopherServer.init()
+//   .then(() => GopherServer.start())
+//   .catch(console.error);
+
+const server = new RootServer("localhost");
+server.init().then(() => {
+  server.start();
+});

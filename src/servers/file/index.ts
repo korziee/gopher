@@ -1,35 +1,24 @@
 import * as fsNoPromises from "fs";
-import * as net from "net";
 import * as path from "path";
 import {
-  filterInput,
   IPreGopher,
   isEmptyCRLF,
   transformInformationToGopherText
 } from "../../core";
 const fs = fsNoPromises.promises;
 
-export interface IGopherFileServer {
-  /**
-   * Will start the gopher server.
-   */
-  start: () => void;
-  /** Initialiases the gopher server, this must be run before starting. */
-  init: () => void;
-}
-
-export class GopherFileServer implements IGopherFileServer {
+export class GopherFileServer {
   private directory: string;
-  private server: net.Server;
-  private initialised = false;
   private debug: boolean;
+  private root: string;
 
-  constructor(directory: string, debug = false) {
+  constructor(root: string, directory: string, debug = false) {
     this.directory = directory;
     this.debug = debug;
+    this.root = root;
   }
 
-  private async getGopher(handle: string): Promise<string> {
+  public async handleInput(handle: string): Promise<string> {
     const direntPath = isEmptyCRLF(handle)
       ? this.directory
       : path.join(this.directory, handle);
@@ -59,7 +48,7 @@ export class GopherFileServer implements IGopherFileServer {
         return {
           selector,
           description: directoryDirents[index],
-          handler: `${handle}/${directoryDirents[index]}`
+          handler: this.root + "/" + `${handle}/${directoryDirents[index]}`
         };
       });
       return transformInformationToGopherText(preGopher, "localhost");
@@ -74,18 +63,6 @@ export class GopherFileServer implements IGopherFileServer {
       ],
       "localhost"
     );
-  }
-
-  private async handleUserInput(
-    data: Buffer,
-    socket: net.Socket
-  ): Promise<void> {
-    const message = filterInput(data.toString());
-
-    const response = await this.getGopher(message);
-
-    socket.write(response);
-    socket.end();
   }
 
   private debugLog(type: "log" | "warn" | "error", message: any): void {
@@ -133,31 +110,5 @@ export class GopherFileServer implements IGopherFileServer {
         "Root directory must exist when a new gopher file server is created."
       );
     }
-    this.server = net.createServer(socket => {
-      socket.on("data", data => {
-        this.handleUserInput(data, socket);
-      });
-      socket.on("close", hadError => {
-        if (hadError) {
-          console.log("there was an error onclose.");
-        }
-      });
-    });
-
-    this.server.on("error", err => {
-      throw err;
-    });
-    this.initialised = true;
-  }
-
-  public start() {
-    if (!this.initialised) {
-      throw new Error(
-        "You must run .init on the constructed gopher file server."
-      );
-    }
-    this.server.listen(70, () => {
-      console.log("Gopher server started on port 70!");
-    });
   }
 }
