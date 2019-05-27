@@ -1,6 +1,6 @@
 import * as net from "net";
 import { filterInput, transformInformationToGopherText } from "../../core";
-import { GopherServer } from "../../models/gopherServer";
+import { GopherServer } from "../../models/GopherServer";
 import { GopherFileServer } from "../file";
 import { GopherNrlServer } from "../nrl";
 
