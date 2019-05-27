@@ -106,7 +106,7 @@ export class RootServer implements GopherServer<null> {
     if (!this.initialised) {
       throw new Error("You must run .init on the constructed gopher server.");
     }
-    this.server.listen(70, () => {
+    this.server.listen(3070, () => {
       console.log("Gopher server started on port 70!");
     });
   }
