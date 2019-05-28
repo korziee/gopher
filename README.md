@@ -15,3 +15,4 @@ Change the port variable in the env file to serve on a specific port
 Run `export NODE_ENV=production` before starting the node process.
 Make sure that the "HOST" and "PORT" environment variables have been set in the .env file.
 HOST should be something like gopher.koryporter.com or an IP address
+To start the server on the EC2 instance: `pm2 start 2 --node-args="-r dotenv/config"`
