@@ -8,7 +8,13 @@
   "license": "MIT",
   "scripts": {
     "build:watch": "npx tsc -w",
-    "start": "npx nodemon compiled/index.js -w compiled"
+    "start": "npx nodemon compiled/index.js -w compiled",
+    "env": "sync-dotenv"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run env"
+    }
   },
   "dependencies": {
     "@korziee/nrl": "github:korziee/nrl-crawler",
@@ -16,7 +22,9 @@
   },
   "devDependencies": {
     "@types/node": "^11.12.0",
+    "husky": "^2.3.0",
     "nodemon": "^1.18.10",
+    "sync-dotenv": "^2.1.0",
     "tslint": "^5.14.0",
     "typescript": "^3.4.1"
   }
