@@ -14,7 +14,6 @@ interface IGopherNrlMatch extends INrlMatch {
 export class GopherNrlServer {
   private games: IGopherNrlMatch[];
   private nextFetch: number = 0;
-
   private root: string;
 
   constructor(rootDirectory: string) {
@@ -75,7 +74,7 @@ export class GopherNrlServer {
           },
           ...gamesNotYetStarted
         ],
-        ""
+        process.env.HOST
       );
     }
 
@@ -90,7 +89,7 @@ export class GopherNrlServer {
             selector: 3
           }
         ],
-        "localhost"
+        process.env.HOST
       );
     }
 
@@ -130,7 +129,7 @@ export class GopherNrlServer {
           selector: "i"
         }
       ],
-      "localhost"
+      process.env.HOST
     );
   }
 

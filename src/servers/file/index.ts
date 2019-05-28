@@ -51,7 +51,7 @@ export class GopherFileServer {
           handler: this.root + "/" + `${handle}/${directoryDirents[index]}`
         };
       });
-      return transformInformationToGopherText(preGopher, "localhost");
+      return transformInformationToGopherText(preGopher, process.env.HOST);
     }
     return transformInformationToGopherText(
       [
@@ -61,7 +61,7 @@ export class GopherFileServer {
           handler: "Error"
         }
       ],
-      "localhost"
+      process.env.HOST
     );
   }
 
