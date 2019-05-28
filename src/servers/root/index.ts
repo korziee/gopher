@@ -28,6 +28,7 @@ export class RootServer implements GopherServer<null> {
 
   private async handleData(data: Buffer, socket: net.Socket): Promise<void> {
     const message = filterInput(data.toString());
+    console.log("Message received", message);
 
     // root call to nrl, mimic root call with \r\n
     if (message === "nrl") {
@@ -59,8 +60,6 @@ export class RootServer implements GopherServer<null> {
       socket.end();
       return;
     }
-
-    console.log(111, message);
 
     // default response, serves the root directory
     const response = transformInformationToGopherText(
@@ -106,8 +105,10 @@ export class RootServer implements GopherServer<null> {
     if (!this.initialised) {
       throw new Error("You must run .init on the constructed gopher server.");
     }
-    this.server.listen(process.env.PORT || 3000, () => {
-      console.log("Gopher server started on port", process.env.PORT || 3000);
+    this.server.listen(process.env.PORT, () => {
+      console.log(
+        `Gopher server started at ${this.host} on port ${process.env.PORT}`
+      );
     });
   }
 }

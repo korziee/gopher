@@ -20,7 +20,7 @@
 
 "@korziee/nrl@github:korziee/nrl-crawler":
   version "1.0.0"
-  resolved "https://codeload.github.com/korziee/nrl-crawler/tar.gz/a618c86a457a1804e26aaa160f2d552da977fcf8"
+  resolved "https://codeload.github.com/korziee/nrl-crawler/tar.gz/78f223ae4d09074e52d2dacff805fce53463269d"
   dependencies:
     axios "^0.18.0"
     eventsource "^1.0.7"

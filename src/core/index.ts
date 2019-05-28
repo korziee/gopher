@@ -19,7 +19,7 @@ export const transformInformationToGopherText = (
     dir.reduce((gopher, entry) => {
       return (gopher += `${entry.selector}${entry.description}\t${
         entry.handler
-      }\t${hostname}\t${70}\r\n`);
+      }\t${hostname}\t${process.env.PORT}\r\n`);
     }, "") + "."; // . is the termination character.
   return gopherText;
 };

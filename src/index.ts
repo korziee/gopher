@@ -15,13 +15,16 @@ import { RootServer } from "./servers/root";
  * the root they are dispersed to the relevant server.
  */
 
-// const GopherServer = new GopherNrlServer();
+if (!process.env.PORT) {
+  throw Error("PORT is required, please set it in the env file.");
+}
 
-// GopherServer.init()
-//   .then(() => GopherServer.start())
-//   .catch(console.error);
+if (!process.env.HOST) {
+  throw Error("HOST is required, please set it in the env file.");
+}
 
-const server = new RootServer("localhost");
+const server = new RootServer(process.env.HOST);
+
 server.init().then(() => {
   server.start();
 });
