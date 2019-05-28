@@ -20,25 +20,13 @@
 
 "@korziee/nrl@github:korziee/nrl-crawler":
   version "1.0.0"
-  resolved "https://codeload.github.com/korziee/nrl-crawler/tar.gz/640d5e751d73c51cc986d7333e5f6a6213d4f3d4"
+  resolved "https://codeload.github.com/korziee/nrl-crawler/tar.gz/a618c86a457a1804e26aaa160f2d552da977fcf8"
   dependencies:
     axios "^0.18.0"
     eventsource "^1.0.7"
     jsdom "^11.12.0"
     moment "^2.22.2"
     typescript "^3.4.5"
-
-"@types/dotenv@^6.1.1":
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-6.1.1.tgz#f7ce1cc4fe34f0a4373ba99fefa437b0bec54b46"
-  integrity sha512-ftQl3DtBvqHl9L16tpqqzA4YzCSXZfi7g8cQceTz5rOlYtk/IZbFjAv3mLOQlNIgOaylCQWQoBdDQHPgEBJPHg==
-  dependencies:
-    "@types/node" "*"
-
-"@types/node@*":
-  version "12.0.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.2.tgz#3452a24edf9fea138b48fad4a0a028a683da1e40"
-  integrity sha512-5tabW/i+9mhrfEOUcLDu2xBPsHJ+X5Orqy9FKpale3SjDA17j5AEpYq5vfy3oAeAHGcvANRCO3NV3d2D6q3NiA==
 
 "@types/node@^11.12.0":
   version "11.13.11"
