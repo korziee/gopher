@@ -1,5 +1,3 @@
-// import { GopherFileServer } from "./servers/file";
-// import { GopherNrlServer } from "./servers/nrl";
 import { RootServer } from "./servers/root";
 
 /**
