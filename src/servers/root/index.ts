@@ -1,8 +1,20 @@
+import * as datefns from "date-fns";
+import * as fsNoProm from "fs";
 import * as net from "net";
-import { filterInput, transformInformationToGopherText } from "../../core";
+
+import {
+  filterInput,
+  generateEmptyGopherLine,
+  generateGopherFromAscii,
+  generateGopherInfoMessage,
+  ItemTypes,
+  transformInformationToGopherText
+} from "../../core";
 import { GopherServer } from "../../models/GopherServer";
 import { GopherFileServer } from "../file";
 import { GopherNrlServer } from "../nrl";
+
+const fs = fsNoProm.promises;
 
 // create the classes
 // initiate them
@@ -14,6 +26,10 @@ export class RootServer implements GopherServer<null> {
   private server: net.Server;
   private host: string;
   private initialised = false;
+  /**
+   * String containing the contents on the banner message.
+   */
+  private banner: string;
 
   private NrlServer = new GopherNrlServer("nrl");
   private FileServer = new GopherFileServer(
@@ -24,6 +40,11 @@ export class RootServer implements GopherServer<null> {
 
   constructor(hostname: string) {
     this.host = hostname;
+  }
+
+  private async loadBannerMessage() {
+    const banner = await fs.readFile(process.cwd() + "/banner.txt", "utf8");
+    this.banner = banner;
   }
 
   private async handleData(data: Buffer, socket: net.Socket): Promise<void> {
@@ -62,21 +83,31 @@ export class RootServer implements GopherServer<null> {
     }
 
     // default response, serves the root directory
-    const response = transformInformationToGopherText(
-      [
-        {
-          description: "NRL SCORES",
-          handler: "nrl",
-          selector: 1
-        },
-        {
-          description: "FILE SERVER",
-          handler: "file",
-          selector: 1
-        }
-      ],
-      this.host
-    );
+    const response = transformInformationToGopherText([
+      ...generateGopherFromAscii(this.banner),
+      generateEmptyGopherLine(),
+      generateEmptyGopherLine(),
+      generateGopherInfoMessage(datefns.format(new Date(), "Do of MMM YYYY")),
+      generateEmptyGopherLine(),
+      generateGopherInfoMessage(
+        "Check the scores of the current round of the NRL"
+      ),
+      {
+        description: "NRL SCORES",
+        handler: "nrl",
+        type: ItemTypes.Menu,
+        host: process.env.HOST,
+        port: process.env.PORT
+      },
+      generateEmptyGopherLine(),
+      {
+        description: "FILE SERVER",
+        handler: "file",
+        type: ItemTypes.Menu,
+        host: process.env.HOST,
+        port: process.env.PORT
+      }
+    ]);
 
     socket.write(response);
     socket.end();
@@ -84,6 +115,7 @@ export class RootServer implements GopherServer<null> {
 
   public async init() {
     await this.NrlServer.init();
+    await this.loadBannerMessage();
 
     this.server = net.createServer(socket => {
       socket.on("data", data => {

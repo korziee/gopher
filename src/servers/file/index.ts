@@ -3,6 +3,7 @@ import * as path from "path";
 import {
   IPreGopher,
   isEmptyCRLF,
+  ItemTypes,
   transformInformationToGopherText
 } from "../../core";
 const fs = fsNoPromises.promises;
@@ -39,30 +40,31 @@ export class GopherFileServer {
       const preGopher: IPreGopher[] = directoryContents.map((type, index) => {
         let selector;
         if (type === "file") {
-          selector = 0;
+          selector = ItemTypes.File;
         } else if (type === "directory") {
-          selector = 1;
+          selector = ItemTypes.Menu;
         } else if (type === null) {
-          selector = 3;
+          selector = ItemTypes.Error;
         }
         return {
-          selector,
+          type: selector,
           description: directoryDirents[index],
-          handler: this.root + "/" + `${handle}/${directoryDirents[index]}`
+          handler: this.root + "/" + `${handle}/${directoryDirents[index]}`,
+          host: process.env.HOST,
+          port: process.env.PORT
         };
       });
-      return transformInformationToGopherText(preGopher, process.env.HOST);
+      return transformInformationToGopherText(preGopher);
     }
-    return transformInformationToGopherText(
-      [
-        {
-          selector: 3,
-          description: "There was an error.",
-          handler: "Error"
-        }
-      ],
-      process.env.HOST
-    );
+    return transformInformationToGopherText([
+      {
+        type: ItemTypes.Error,
+        description: "There was an error.",
+        handler: "Error",
+        host: process.env.HOST,
+        port: process.env.PORT
+      }
+    ]);
   }
 
   private debugLog(type: "log" | "warn" | "error", message: any): void {

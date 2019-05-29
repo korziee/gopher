@@ -1,9 +1,11 @@
 import { getMatchesByRound, INrlMatch } from "@korziee/nrl/compiled/index";
 import * as datefns from "date-fns";
 import {
-  emptyGopherLine,
+  generateEmptyGopherLine,
+  generateGopherInfoMessage,
   IPreGopher,
   isEmptyCRLF,
+  ItemTypes,
   transformInformationToGopherText
 } from "../../core";
 
@@ -20,6 +22,11 @@ export class GopherNrlServer {
     this.root = rootDirectory;
   }
 
+  /**
+   * Fetches nrl games through the nrl-crawler package.
+   *
+   * Caches games for 10 seconds.
+   */
   private async fetchNrlGames(): Promise<IGopherNrlMatch[]> {
     const now = Math.floor(new Date().getTime() / 1000);
     if (now > this.nextFetch) {
@@ -44,7 +51,9 @@ export class GopherNrlServer {
           (game): IPreGopher => ({
             description: `${game.homeTeam.name} Vs ${game.awayTeam.name}`,
             handler: this.root + "/" + game.id,
-            selector: 1
+            type: ItemTypes.Menu,
+            host: process.env.HOST,
+            port: process.env.PORT
           })
         );
 
@@ -54,83 +63,54 @@ export class GopherNrlServer {
           (game): IPreGopher => ({
             description: `${game.homeTeam.name} Vs ${game.awayTeam.name}`,
             handler: this.root + "/" + game.id,
-            selector: 1
+            type: ItemTypes.Menu,
+            host: process.env.HOST,
+            port: process.env.PORT
           })
         );
 
-      return transformInformationToGopherText(
-        [
-          {
-            description: "Games Below This Have Started",
-            handler: "",
-            selector: "i"
-          },
-          ...gamesStarted,
-          emptyGopherLine(),
-          {
-            description: "Games Below This Have Not Started",
-            handler: "",
-            selector: "i"
-          },
-          ...gamesNotYetStarted
-        ],
-        process.env.HOST
-      );
+      return transformInformationToGopherText([
+        generateGopherInfoMessage("Games Below This Have Started"),
+        ...gamesStarted,
+        generateEmptyGopherLine(),
+        generateGopherInfoMessage("Games Below This Have Not Started"),
+        ...gamesNotYetStarted
+      ]);
     }
 
     const selectedGame = games.find(g => g.id === message);
 
     if (!selectedGame) {
-      return transformInformationToGopherText(
-        [
-          {
-            description: "No Game Found",
-            handler: this.root + "/" + "no-game",
-            selector: 3
-          }
-        ],
-        process.env.HOST
-      );
+      return transformInformationToGopherText([
+        {
+          description: "No Game Found",
+          handler: this.root + "/" + "no-game",
+          type: ItemTypes.Error,
+          host: process.env.HOST,
+          port: process.env.PORT
+        }
+      ]);
     }
 
-    return transformInformationToGopherText(
-      [
-        {
-          description: `(H) ${selectedGame.homeTeam.name} - ${
-            selectedGame.homeTeam.score
-          }`,
-          handler: selectedGame.homeTeam.name,
-          selector: "i"
-        },
-        {
-          description: `(A) ${selectedGame.awayTeam.name} - ${
-            selectedGame.awayTeam.score
-          }`,
-          handler: selectedGame.awayTeam.name,
-          selector: "i"
-        },
-        emptyGopherLine(),
-        {
-          description: `Venue - ${selectedGame.venue}`,
-          handler: "",
-          selector: "i"
-        },
-        {
-          description: `Kickoff - ${datefns.format(
-            selectedGame.clock.kickOffTime,
-            "dddd Do MMM, h:mm a"
-          )}`,
-          handler: "",
-          selector: "i"
-        },
-        {
-          description: `Game Clock - ${selectedGame.clock.currentGameTime}`,
-          handler: "",
-          selector: "i"
-        }
-      ],
-      process.env.HOST
-    );
+    return transformInformationToGopherText([
+      generateGopherInfoMessage(
+        `(H) ${selectedGame.homeTeam.name} - ${selectedGame.homeTeam.score}`
+      ),
+      generateGopherInfoMessage(
+        `(A) ${selectedGame.awayTeam.name} - ${selectedGame.awayTeam.score}`
+      ),
+      generateEmptyGopherLine(),
+      generateGopherInfoMessage(`Venue - ${selectedGame.venue}`),
+      generateGopherInfoMessage(
+        `Kickoff - ${datefns.format(
+          selectedGame.clock.kickOffTime,
+          "dddd Do MMM, h:mm a"
+        )}`
+      ),
+      generateGopherInfoMessage(
+        `Game Clock - ${selectedGame.clock.currentGameTime}`
+      )
+    ]);
   }
 
   public async init() {
