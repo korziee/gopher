@@ -10,6 +10,7 @@ import {
   ItemTypes,
   transformInformationToGopherText
 } from "../../core";
+import { getDateStringInSydney } from "../../helpers/getDateStringInSydney";
 import { GopherServer } from "../../models/GopherServer";
 import { GopherFileServer } from "../file";
 import { GopherNrlServer } from "../nrl";
@@ -87,7 +88,9 @@ export class RootServer implements GopherServer<null> {
       ...generateGopherFromAscii(this.banner),
       generateEmptyGopherLine(),
       generateEmptyGopherLine(),
-      generateGopherInfoMessage(datefns.format(new Date(), "Do of MMM YYYY")),
+      generateGopherInfoMessage(
+        datefns.format(getDateStringInSydney(), "Do of MMM YYYY")
+      ),
       generateEmptyGopherLine(),
       generateGopherInfoMessage(
         "Check the scores of the current round of the NRL"
