@@ -1,22 +1,6 @@
 import { GopherText } from "../models";
-
-export enum ItemTypes {
-  File = 0,
-  Menu = 1,
-  Error = 3,
-  Binary = 9,
-  Gif = "g",
-  Html = "h",
-  Info = "i"
-}
-
-export interface IPreGopher {
-  type: ItemTypes;
-  description: string;
-  handler: string;
-  host: string;
-  port: number | string;
-}
+import { IPreGopher } from "../models/IPreGopher";
+import { ItemTypes } from "../models/ItemTypes";
 
 export const generateEmptyGopherLine = (): IPreGopher => ({
   description: "",

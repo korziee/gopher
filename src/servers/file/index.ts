@@ -1,11 +1,8 @@
 import * as fsNoPromises from "fs";
 import * as path from "path";
-import {
-  IPreGopher,
-  isEmptyCRLF,
-  ItemTypes,
-  transformInformationToGopherText
-} from "../../core";
+import { isEmptyCRLF, transformInformationToGopherText } from "../../core";
+import { IPreGopher } from "../../models/IPreGopher";
+import { ItemTypes } from "../../models/ItemTypes";
 const fs = fsNoPromises.promises;
 
 export class GopherFileServer {

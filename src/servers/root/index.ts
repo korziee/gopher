@@ -7,11 +7,11 @@ import {
   generateEmptyGopherLine,
   generateGopherFromAscii,
   generateGopherInfoMessage,
-  ItemTypes,
   transformInformationToGopherText
 } from "../../core";
 import { getDateStringInSydney } from "../../helpers/getDateStringInSydney";
-import { GopherServer } from "../../models/GopherServer";
+import { IPreGopher } from "../../models/IPreGopher";
+import { ItemTypes } from "../../models/ItemTypes";
 import { GopherFileServer } from "../file";
 import { GopherNrlServer } from "../nrl";
 
@@ -23,7 +23,12 @@ const fs = fsNoProm.promises;
 // lists the name of the two servers
 // any request to either of them
 
-export class RootServer implements GopherServer<null> {
+export interface IRootServer {
+  init(): Promise<void>;
+  start(): Promise<void>;
+}
+
+export class RootServer implements IRootServer {
   private server: net.Server;
   private host: string;
   private initialised = false;
@@ -32,7 +37,7 @@ export class RootServer implements GopherServer<null> {
    */
   private banner: string;
 
-  private NrlServer = new GopherNrlServer("nrl");
+  private NrlServer = new GopherNrlServer();
   private FileServer = new GopherFileServer(
     "file",
     "/Users/koryporter/Personal/Repos/gopher/directory",
@@ -48,22 +53,45 @@ export class RootServer implements GopherServer<null> {
     this.banner = banner;
   }
 
+  /**
+   * If the preGopher has come from a child server, this appends the child servers name to the selector
+   *
+   * Also adds in hostname and port.
+   */
+  private appendRootServerInfo(
+    preGopher: IPreGopher[],
+    rootHandler?: string
+  ): IPreGopher[] {
+    return preGopher.map(x => ({
+      ...x,
+      handler: rootHandler ? `${rootHandler}/${x.handler}` : x.handler,
+      port: process.env.PORT,
+      host: process.env.HOST
+    }));
+  }
+
   private async handleData(data: Buffer, socket: net.Socket): Promise<void> {
     const message = filterInput(data.toString());
     console.log("Message received", message);
 
     // root call to nrl, mimic root call with \r\n
     if (message === "nrl") {
-      const res = await this.NrlServer.handleInput("\r\n");
-      socket.write(res);
+      const preGopher = await this.NrlServer.handleInput("\r\n");
+      const gopher = transformInformationToGopherText(
+        this.appendRootServerInfo(preGopher, "nrl")
+      );
+      socket.write(gopher);
       socket.end();
       return;
     }
     // check if not root call, but still call to nrl
     if (message.includes("nrl")) {
       const [, ...content] = message.split("/");
-      const res = await this.NrlServer.handleInput(content.join());
-      socket.write(res);
+      const preGopher = await this.NrlServer.handleInput(content.join());
+      const gopher = transformInformationToGopherText(
+        this.appendRootServerInfo(preGopher, "nrl")
+      );
+      socket.write(gopher);
       socket.end();
       return;
     }

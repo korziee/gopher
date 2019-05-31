@@ -1,14 +1,17 @@
-// export interface IGopherServer<X> {
-//   directory: string;
-//   /**
-//    * All servers must have an init method, in which a generic can be passed.
-//    * This must return a promise.
-//    */
-//   init: (params: X) => Promise<void>;
-//   start: () => void;
-// }
+import { IPreGopher } from "./IPreGopher";
 
-export abstract class GopherServer<X> {
-  public abstract init(params: X): Promise<void>;
-  public abstract start(): void;
+export interface IGopherServer<X = null> {
+  /**
+   * All servers must have an init method, in which a generic can be passed.
+   * This must return a promise.
+   */
+  init: (params?: X) => Promise<void>;
+  /**
+   * This method will receive the user input as if it was hitting the root level gopher server.
+   * I.e. if the root server receives a handler "nrl/games", it will strip away the server selector "nrl"
+   * and just pass "games" to the child server.
+   *
+   * This method anticipates that you will handle the handler input and respond with usable PreGopher
+   */
+  handleInput: (input: string) => Promise<IPreGopher[]>;
 }

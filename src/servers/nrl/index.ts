@@ -3,25 +3,19 @@ import * as datefns from "date-fns";
 import {
   generateEmptyGopherLine,
   generateGopherInfoMessage,
-  IPreGopher,
-  isEmptyCRLF,
-  ItemTypes,
-  transformInformationToGopherText
+  isEmptyCRLF
 } from "../../core";
+import { IGopherServer } from "../../models/GopherServer";
+import { IPreGopher } from "../../models/IPreGopher";
+import { ItemTypes } from "../../models/ItemTypes";
 
 interface IGopherNrlMatch extends INrlMatch {
   id: string;
 }
 
-export class GopherNrlServer {
+export class GopherNrlServer implements IGopherServer {
   private games: IGopherNrlMatch[];
   private nextFetch: number = 0;
-  private root: string;
-
-  constructor(rootDirectory: string) {
-    this.root = rootDirectory;
-  }
-
   /**
    * Fetches nrl games through the nrl-crawler package.
    *
@@ -41,7 +35,7 @@ export class GopherNrlServer {
     return this.games;
   }
 
-  public async handleInput(message: string): Promise<string> {
+  public async handleInput(message: string): Promise<IPreGopher[]> {
     const games = await this.fetchNrlGames();
     if (isEmptyCRLF(message)) {
       // return list as games.
@@ -50,10 +44,8 @@ export class GopherNrlServer {
         .map(
           (game): IPreGopher => ({
             description: `${game.homeTeam.name} Vs ${game.awayTeam.name}`,
-            handler: this.root + "/" + game.id,
-            type: ItemTypes.Menu,
-            host: process.env.HOST,
-            port: process.env.PORT
+            handler: game.id,
+            type: ItemTypes.Menu
           })
         );
 
@@ -62,37 +54,33 @@ export class GopherNrlServer {
         .map(
           (game): IPreGopher => ({
             description: `${game.homeTeam.name} Vs ${game.awayTeam.name}`,
-            handler: this.root + "/" + game.id,
-            type: ItemTypes.Menu,
-            host: process.env.HOST,
-            port: process.env.PORT
+            handler: game.id,
+            type: ItemTypes.Menu
           })
         );
 
-      return transformInformationToGopherText([
+      return [
         generateGopherInfoMessage("Games Below This Have Started"),
         ...gamesStarted,
         generateEmptyGopherLine(),
         generateGopherInfoMessage("Games Below This Have Not Started"),
         ...gamesNotYetStarted
-      ]);
+      ];
     }
 
     const selectedGame = games.find(g => g.id === message);
 
     if (!selectedGame) {
-      return transformInformationToGopherText([
+      return [
         {
           description: "No Game Found",
-          handler: this.root + "/" + "no-game",
-          type: ItemTypes.Error,
-          host: process.env.HOST,
-          port: process.env.PORT
+          handler: "no-game",
+          type: ItemTypes.Error
         }
-      ]);
+      ];
     }
 
-    return transformInformationToGopherText([
+    return [
       generateGopherInfoMessage(
         `(H) ${selectedGame.homeTeam.name} - ${selectedGame.homeTeam.score}`
       ),
@@ -110,7 +98,7 @@ export class GopherNrlServer {
       generateGopherInfoMessage(
         `Game Clock - ${selectedGame.clock.currentGameTime}`
       )
-    ]);
+    ];
   }
 
   public async init() {
