@@ -1,4 +1,4 @@
-import { GopherText } from "../models";
+import { IGopherText } from "../models/IGopherText";
 import { IPreGopher } from "../models/IPreGopher";
 import { ItemTypes } from "../models/ItemTypes";
 
@@ -31,9 +31,12 @@ export const generateGopherFromAscii = (ascii: string): IPreGopher[] => {
  */
 export const transformInformationToGopherText = (
   preGopher: IPreGopher[]
-): GopherText => {
+): IGopherText => {
   const gopherText =
     preGopher.reduce((gopher, entry) => {
+      if (entry.type === ItemTypes.File && entry.isRaw) {
+        return entry.description;
+      }
       return (gopher += `${entry.type}${entry.description}\t${entry.handler}\t${
         entry.host
       }\t${entry.port}\r\n`);

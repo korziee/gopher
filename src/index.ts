@@ -1,4 +1,6 @@
 import { RootServer } from "./servers/root";
+import { GopherNrlServer } from "./servers/nrl";
+import { GopherFileServer } from "./servers/file";
 
 /**
  * What this server should do:
@@ -9,12 +11,6 @@ import { RootServer } from "./servers/root";
  * - Listen on port 70.
  */
 
-/**
- * Essentially we want a master gopher server,
- * one that serves all of the servers in the server folder at the root only, and then for requests after
- * the root they are dispersed to the relevant server.
- */
-
 if (!process.env.PORT) {
   throw Error("PORT is required, please set it in the env file.");
 }
@@ -23,7 +19,24 @@ if (!process.env.HOST) {
   throw Error("HOST is required, please set it in the env file.");
 }
 
-const server = new RootServer(process.env.HOST);
+const server = new RootServer(process.env.HOST, [
+  {
+    handler: "nrl",
+    descriptionShort: "NRL GAMES",
+    descriptionLong: "Check the scores of the current round of the NRL",
+    class: GopherNrlServer
+  },
+  {
+    handler: "file",
+    descriptionShort: "FILE SERVER",
+    descriptionLong: "Some files!",
+    initParams: {
+      directory: "/Users/koryporter/Projects/gopher/directory",
+      debug: false
+    },
+    class: GopherFileServer
+  }
+]);
 
 server.init().then(() => {
   server.start();

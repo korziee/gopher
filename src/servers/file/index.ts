@@ -1,22 +1,16 @@
 import * as fsNoPromises from "fs";
 import * as path from "path";
-import { isEmptyCRLF, transformInformationToGopherText } from "../../core";
+import { isEmptyCRLF } from "../../core";
+import { IGopherServer } from "../../models/GopherServer";
 import { IPreGopher } from "../../models/IPreGopher";
 import { ItemTypes } from "../../models/ItemTypes";
 const fs = fsNoPromises.promises;
 
-export class GopherFileServer {
+export class GopherFileServer implements IGopherServer {
   private directory: string;
   private debug: boolean;
-  private root: string;
 
-  constructor(root: string, directory: string, debug = false) {
-    this.directory = directory;
-    this.debug = debug;
-    this.root = root;
-  }
-
-  public async handleInput(handle: string): Promise<string> {
+  public async handleInput(handle: string): Promise<IPreGopher[]> {
     const direntPath = isEmptyCRLF(handle)
       ? this.directory
       : path.join(this.directory, handle);
@@ -24,10 +18,18 @@ export class GopherFileServer {
     const direntType = await this.getDirentType(direntPath);
 
     if (direntType === "file") {
-      return await fs.readFile(direntPath, { encoding: "utf8" });
+      const fileContents = await fs.readFile(direntPath, { encoding: "utf8" });
+      return [
+        {
+          type: ItemTypes.File,
+          description: fileContents,
+          isRaw: true
+        }
+      ];
     }
 
     if (direntType === "directory") {
+      const isRoot = handle.includes("\r\n") || handle.includes("\n\r");
       const directoryDirents = await fs.readdir(direntPath);
       const directoryContents = await Promise.all(
         directoryDirents.map(async (dirent: string) =>
@@ -46,22 +48,20 @@ export class GopherFileServer {
         return {
           type: selector,
           description: directoryDirents[index],
-          handler: this.root + "/" + `${handle}/${directoryDirents[index]}`,
-          host: process.env.HOST,
-          port: process.env.PORT
+          handler: isRoot
+            ? directoryDirents[index]
+            : handle + "/" + directoryDirents[index]
         };
       });
-      return transformInformationToGopherText(preGopher);
+      return preGopher;
     }
-    return transformInformationToGopherText([
+    return [
       {
         type: ItemTypes.Error,
         description: "There was an error.",
-        handler: "Error",
-        host: process.env.HOST,
-        port: process.env.PORT
+        handler: "Error"
       }
-    ]);
+    ];
   }
 
   private debugLog(type: "log" | "warn" | "error", message: any): void {
@@ -102,7 +102,16 @@ export class GopherFileServer {
     return null;
   }
 
-  public async init() {
+  public async init({
+    directory,
+    debug = false
+  }: {
+    directory: string;
+    debug?: boolean;
+  }) {
+    this.directory = directory;
+    this.debug = debug;
+
     const type = await this.getDirentType(this.directory);
     if (type !== "directory") {
       throw new Error(

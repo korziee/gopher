@@ -7,28 +7,20 @@ import {
   generateEmptyGopherLine,
   generateGopherFromAscii,
   generateGopherInfoMessage,
-  transformInformationToGopherText
+  transformInformationToGopherText,
+  isEmptyCRLF
 } from "../../core";
 import { getDateStringInSydney } from "../../helpers/getDateStringInSydney";
 import { IPreGopher } from "../../models/IPreGopher";
 import { ItemTypes } from "../../models/ItemTypes";
-import { GopherFileServer } from "../file";
-import { GopherNrlServer } from "../nrl";
+import { IGopherServer } from "../../models/GopherServer";
+import { IGopherText } from "../../models/IGopherText";
+import { IGopherModule } from "../../models/IGopherModule";
+import { IRootStates } from "../../models/IRootStates";
 
 const fs = fsNoProm.promises;
 
-// create the classes
-// initiate them
-// start a root gopher server
-// lists the name of the two servers
-// any request to either of them
-
-export interface IRootServer {
-  init(): Promise<void>;
-  start(): Promise<void>;
-}
-
-export class RootServer implements IRootServer {
+export class RootServer {
   private server: net.Server;
   private host: string;
   private initialised = false;
@@ -36,16 +28,176 @@ export class RootServer implements IRootServer {
    * String containing the contents on the banner message.
    */
   private banner: string;
+  private readonly plugins: Map<
+    string,
+    Pick<
+      IGopherModule,
+      "descriptionLong" | "descriptionShort" | "initParams" | "handler"
+    > & { class: IGopherServer }
+  > = new Map();
 
-  private NrlServer = new GopherNrlServer();
-  private FileServer = new GopherFileServer(
-    "file",
-    "/Users/koryporter/Personal/Repos/gopher/directory",
-    false
-  );
-
-  constructor(hostname: string) {
+  constructor(hostname: string, plugins: IGopherModule[]) {
     this.host = hostname;
+    this.addPlugins(plugins);
+  }
+
+  /**
+   * Returns the state in which a path should be chosen based on the input.
+   *
+   * I.e., if there are no slashes, this will return no_slash, in which a decision can be made to proceed.
+   */
+  private getStateFromUserInput(input: string): IRootStates {
+    const [, pluginHandler, ...pluginMessage] = input.split("/");
+
+    /**
+     * In Gopher, if the input is a CRLF, return the root directory, or index.
+     * However, we also want to respond if the input only contains a "/\r\n" too.
+     */
+    if (isEmptyCRLF(input) || (input[0] === "/" && !pluginHandler)) {
+      return "root_listing";
+    }
+
+    // make sure message is not too long, we don't want to be spammed or have a memory attack occur.
+    if (input.length > 200) {
+      return "message_too_long";
+    }
+
+    // unless an empty input for root, all requests require a prepended slash.
+    if (!input.includes("/")) {
+      return "no_slash_found";
+    }
+
+    // if the pluginHandler does not exist in the plugins Map, we will not go further, as nothing exists
+    if (!this.plugins.has(pluginHandler)) {
+      return "not_found";
+    }
+
+    // we already know the parent exists here,
+    // and now we know that it's not a root call to the parent.
+    if (pluginMessage.length > 0) {
+      return "child_handle";
+    }
+
+    return "child_listing";
+  }
+
+  /**
+   * Returns gopher to return to the client based on the state param
+   *
+   * @param state
+   * @param input
+   */
+  private async getGopherByState(
+    state: IRootStates,
+    input: string
+  ): Promise<IGopherText> {
+    const [, pluginHandler, ...pluginMessage] = input.split("/");
+    if (state === "root_listing") {
+      const pluginMessages: IPreGopher[] = [...this.plugins.values()]
+        .map(
+          (v): IPreGopher[] => {
+            return [
+              generateGopherInfoMessage(v.descriptionLong),
+              {
+                description: v.descriptionShort,
+                handler: "/" + v.handler,
+                type: ItemTypes.Menu,
+                host: process.env.HOST,
+                port: process.env.PORT
+              }
+            ];
+          }
+        )
+        .flat();
+
+      return transformInformationToGopherText([
+        ...generateGopherFromAscii(this.banner),
+        generateEmptyGopherLine(),
+        generateEmptyGopherLine(),
+        generateGopherInfoMessage(
+          datefns.format(getDateStringInSydney(), "Do of MMM YYYY")
+        ),
+        generateEmptyGopherLine(),
+        ...pluginMessages
+      ]);
+    }
+
+    if (state === "no_slash_found") {
+      return transformInformationToGopherText([
+        {
+          description: "All handlers begin with '/'",
+          handler: "",
+          host: this.host,
+          port: process.env.PORT,
+          type: ItemTypes.Error
+        }
+      ]);
+    }
+
+    if (state === "message_too_long") {
+      return transformInformationToGopherText([
+        {
+          description: "Nice try...",
+          handler: "",
+          host: this.host,
+          port: process.env.PORT,
+          type: ItemTypes.Error
+        }
+      ]);
+    }
+
+    if (state === "not_found") {
+      return transformInformationToGopherText([
+        {
+          description: `Nothing found with the handler '${input}'`,
+          handler: "",
+          host: this.host,
+          port: process.env.PORT,
+          type: ItemTypes.Error
+        }
+      ]);
+    }
+
+    if (state === "child_handle") {
+      const preGopher = await this.plugins
+        .get(pluginHandler)
+        .class.handleInput(pluginMessage.join("/"));
+
+      return transformInformationToGopherText(
+        this.appendRootServerInfo(preGopher, pluginHandler)
+      );
+    }
+
+    if (state === "child_listing") {
+      const preGopher = await this.plugins
+        .get(pluginHandler)
+        .class.handleInput("\r\n");
+
+      return transformInformationToGopherText(
+        this.appendRootServerInfo(preGopher, pluginHandler)
+      );
+    }
+
+    throw new Error("Unknown gopher state could not be decifered");
+  }
+
+  /**
+   * Adds the plugins to the class.
+   *
+   * @param plugins an array of static gopher servers
+   */
+  private addPlugins(plugins: IGopherModule[]) {
+    plugins.forEach(plugin => {
+      /**
+       * Spread the plugin because we use all of the metadata,
+       * but we overwrite the "class" property on IGopherModule as
+       * we actually use an instantiated class, i.e. IGopherServer
+       */
+      this.plugins.set(plugin.handler, {
+        ...plugin,
+        class: new plugin.class()
+      });
+    });
   }
 
   private async loadBannerMessage() {
@@ -64,99 +216,51 @@ export class RootServer implements IRootServer {
   ): IPreGopher[] {
     return preGopher.map(x => ({
       ...x,
-      handler: rootHandler ? `${rootHandler}/${x.handler}` : x.handler,
+      handler: rootHandler ? `/${rootHandler}/${x.handler}` : x.handler,
       port: process.env.PORT,
       host: process.env.HOST
     }));
   }
 
+  /**
+   * Based on the user input, sends gopher down the socket connection
+   *
+   * @param data
+   * @param socket
+   */
   private async handleData(data: Buffer, socket: net.Socket): Promise<void> {
     const message = filterInput(data.toString());
     console.log("Message received", message);
 
-    // root call to nrl, mimic root call with \r\n
-    if (message === "nrl") {
-      const preGopher = await this.NrlServer.handleInput("\r\n");
-      const gopher = transformInformationToGopherText(
-        this.appendRootServerInfo(preGopher, "nrl")
-      );
-      socket.write(gopher);
-      socket.end();
-      return;
-    }
-    // check if not root call, but still call to nrl
-    if (message.includes("nrl")) {
-      const [, ...content] = message.split("/");
-      const preGopher = await this.NrlServer.handleInput(content.join());
-      const gopher = transformInformationToGopherText(
-        this.appendRootServerInfo(preGopher, "nrl")
-      );
-      socket.write(gopher);
-      socket.end();
-      return;
-    }
+    // get the state based on the input
+    const state = this.getStateFromUserInput(message);
 
-    if (message === "file") {
-      const res = await this.FileServer.handleInput("\r\n");
-      socket.write(res);
+    // build then gopher based on the state
+    const gopher = await this.getGopherByState(state, message);
+
+    socket.write(gopher, () => {
       socket.end();
-      return;
-    }
-
-    if (message.includes("file")) {
-      const [, ...content] = message.split("/");
-      const res = await this.FileServer.handleInput(content.join());
-      socket.write(res);
-      socket.end();
-      return;
-    }
-
-    // default response, serves the root directory
-    const response = transformInformationToGopherText([
-      ...generateGopherFromAscii(this.banner),
-      generateEmptyGopherLine(),
-      generateEmptyGopherLine(),
-      generateGopherInfoMessage(
-        datefns.format(getDateStringInSydney(), "Do of MMM YYYY")
-      ),
-      generateEmptyGopherLine(),
-      generateGopherInfoMessage(
-        "Check the scores of the current round of the NRL"
-      ),
-      {
-        description: "NRL SCORES",
-        handler: "nrl",
-        type: ItemTypes.Menu,
-        host: process.env.HOST,
-        port: process.env.PORT
-      },
-      generateEmptyGopherLine(),
-      {
-        description: "FILE SERVER",
-        handler: "file",
-        type: ItemTypes.Menu,
-        host: process.env.HOST,
-        port: process.env.PORT
-      }
-    ]);
-
-    socket.write(response);
-    socket.end();
+    });
   }
 
   public async init() {
-    await this.NrlServer.init();
+    // initialise all plugins.
+    await Promise.all(
+      [...this.plugins.values()].map(g => g.class.init(g.initParams))
+    );
+    // load banner
     await this.loadBannerMessage();
 
     this.server = net.createServer(socket => {
-      socket.on("data", data => {
+      socket.once("data", data => {
         this.handleData(data, socket);
       });
-      socket.on("close", hadError => {
+      socket.once("close", hadError => {
         if (hadError) {
           console.log("there was an error onclose.");
         }
       });
+      socket.on("error", console.error);
     });
     this.server.on("error", err => {
       throw err;
