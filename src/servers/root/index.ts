@@ -21,13 +21,8 @@ import { IRootStates } from "../../models/IRootStates";
 const fs = fsNoProm.promises;
 
 export class RootServer {
-  private server: net.Server;
-  private host: string;
-  private initialised = false;
-  /**
-   * String containing the contents on the banner message.
-   */
-  private banner: string;
+  private readonly host: string;
+  private readonly port: number;
   private readonly plugins: Map<
     string,
     Pick<
@@ -36,8 +31,16 @@ export class RootServer {
     > & { class: IGopherServer }
   > = new Map();
 
-  constructor(hostname: string, plugins: IGopherModule[]) {
+  private server: net.Server;
+  private initialised = false;
+  /**
+   * String containing the contents on the banner message.
+   */
+  private banner: string;
+
+  constructor(hostname: string, port: number, plugins: IGopherModule[]) {
     this.host = hostname;
+    this.port = port;
     this.addPlugins(plugins);
   }
 
@@ -102,8 +105,8 @@ export class RootServer {
                 description: v.descriptionShort,
                 handler: "/" + v.handler,
                 type: ItemTypes.Menu,
-                host: process.env.HOST,
-                port: process.env.PORT
+                host: this.host,
+                port: this.port
               }
             ];
           }
@@ -128,7 +131,7 @@ export class RootServer {
           description: "All handlers begin with '/'",
           handler: "",
           host: this.host,
-          port: process.env.PORT,
+          port: this.port,
           type: ItemTypes.Error
         }
       ]);
@@ -140,7 +143,7 @@ export class RootServer {
           description: "Nice try...",
           handler: "",
           host: this.host,
-          port: process.env.PORT,
+          port: this.port,
           type: ItemTypes.Error
         }
       ]);
@@ -152,7 +155,7 @@ export class RootServer {
           description: `Nothing found with the handler '${input}'`,
           handler: "",
           host: this.host,
-          port: process.env.PORT,
+          port: this.port,
           type: ItemTypes.Error
         }
       ]);
@@ -178,7 +181,7 @@ export class RootServer {
       );
     }
 
-    throw new Error("Unknown gopher state could not be decifered");
+    throw new Error("Unknown gopher state, could not be decifered");
   }
 
   /**
@@ -217,8 +220,8 @@ export class RootServer {
     return preGopher.map(x => ({
       ...x,
       handler: rootHandler ? `/${rootHandler}/${x.handler}` : x.handler,
-      port: process.env.PORT,
-      host: process.env.HOST
+      port: this.port,
+      host: this.host
     }));
   }
 
@@ -272,10 +275,8 @@ export class RootServer {
     if (!this.initialised) {
       throw new Error("You must run .init on the constructed gopher server.");
     }
-    this.server.listen(process.env.PORT, () => {
-      console.log(
-        `Gopher server started at ${this.host} on port ${process.env.PORT}`
-      );
+    this.server.listen(this.port, () => {
+      console.log(`Gopher server started at ${this.host} on port ${this.port}`);
     });
   }
 }

@@ -10,24 +10,28 @@ if (!process.env.HOST) {
   throw Error("HOST is required, please set it in the env file.");
 }
 
-const server = new RootServer(process.env.HOST, [
-  {
-    handler: "nrl",
-    descriptionShort: "NRL GAMES",
-    descriptionLong: "Check the scores of the current round of the NRL",
-    class: GopherNrlServer
-  },
-  {
-    handler: "file",
-    descriptionShort: "FILE SERVER",
-    descriptionLong: "Some files!",
-    initParams: {
-      directory: "/Users/koryporter/Projects/gopher/directory",
-      debug: false
+const server = new RootServer(
+  process.env.HOST,
+  parseInt(process.env.PORT, 10),
+  [
+    {
+      handler: "nrl",
+      descriptionShort: "NRL GAMES",
+      descriptionLong: "Check the scores of the current round of the NRL",
+      class: GopherNrlServer
     },
-    class: GopherFileServer
-  }
-]);
+    {
+      handler: "file",
+      descriptionShort: "FILE SERVER",
+      descriptionLong: "Some files!",
+      initParams: {
+        directory: "/Users/koryporter/Projects/gopher/directory",
+        debug: false
+      },
+      class: GopherFileServer
+    }
+  ]
+);
 
 server.init().then(() => {
   server.start();
