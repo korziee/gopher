@@ -1,4 +1,4 @@
-import { getMatchesByRound, INrlMatch } from "@korziee/nrl/compiled/index";
+import { INrlMatch, NrlApi } from "nrl-api/compiled/index";
 import * as datefns from "date-fns";
 import {
   generateEmptyGopherLine,
@@ -9,68 +9,75 @@ import { IGopherServer } from "../../models/GopherServer";
 import { IPreGopher } from "../../models/IPreGopher";
 import { ItemTypes } from "../../models/ItemTypes";
 
-interface IGopherNrlMatch extends INrlMatch {
-  id: string;
-}
-
 export class GopherNrlServer implements IGopherServer {
-  private games: IGopherNrlMatch[];
-  private nextFetch: number = 0;
+  private NrlApi = new NrlApi();
   /**
    * Fetches nrl games through the nrl-crawler package.
    *
    * Caches games for 10 seconds.
    */
-  private async fetchNrlGames(): Promise<IGopherNrlMatch[]> {
-    const now = Math.floor(new Date().getTime() / 1000);
-    if (now > this.nextFetch) {
-      const games = await getMatchesByRound();
-      this.games = games.map(game => ({
-        ...game,
-        id: `${game.homeTeam.name}-${game.awayTeam.name}`.toLowerCase()
-      }));
-      // add 10 seconds.
-      this.nextFetch = now + 10;
-    }
-    return this.games;
+  private async fetchNrlGames(): Promise<INrlMatch[]> {
+    const games = await this.NrlApi.getRoundDetails();
+    return Object.values(games.matches).flat();
   }
 
-  public async handleInput(message: string): Promise<IPreGopher[]> {
+  private async handleDirectoryListing() {
     const games = await this.fetchNrlGames();
-    if (isEmptyCRLF(message)) {
-      // return list as games.
-      const gamesStarted: IPreGopher[] = games
-        .filter(game => ["Post", "Live"].includes(game.matchMode))
-        .map(
-          (game): IPreGopher => ({
-            description: `${game.homeTeam.name} Vs ${game.awayTeam.name}`,
-            handler: game.id,
-            type: ItemTypes.Menu
-          })
-        );
 
-      const gamesNotYetStarted: IPreGopher[] = games
-        .filter(game => ["Pre"].includes(game.matchMode))
-        .map(
-          (game): IPreGopher => ({
-            description: `${game.homeTeam.name} Vs ${game.awayTeam.name}`,
-            handler: game.id,
-            type: ItemTypes.Menu
-          })
-        );
+    // return list as games.
+    const gamesStarted: IPreGopher[] = games
+      .filter(game => ["Post", "Live"].includes(game.matchMode))
+      .map(
+        (game): IPreGopher => ({
+          description: `${game.homeTeam.nickName} Vs ${game.awayTeam.nickName}`,
+          handler: game.matchId,
+          type: ItemTypes.Menu
+        })
+      );
 
+    const gamesNotYetStarted: IPreGopher[] = games
+      .filter(game => ["Pre"].includes(game.matchMode))
+      .map(
+        (game): IPreGopher => ({
+          description: `${game.homeTeam.nickName} Vs ${game.awayTeam.nickName}`,
+          handler: game.matchId,
+          type: ItemTypes.Menu
+        })
+      );
+
+    return [
+      generateGopherInfoMessage("Games Below This Have Started"),
+      ...gamesStarted,
+      generateEmptyGopherLine(),
+      generateGopherInfoMessage("Games Below This Have Not Started"),
+      ...gamesNotYetStarted
+    ];
+  }
+
+  private async handleSpecificGame(matchId: string) {
+    try {
+      const liveGame = await this.NrlApi.getMatchDetails(matchId);
       return [
-        generateGopherInfoMessage("Games Below This Have Started"),
-        ...gamesStarted,
+        generateGopherInfoMessage(
+          `(H) ${liveGame.homeTeam.nickName} - ${liveGame.homeScore}`
+        ),
+        generateGopherInfoMessage(
+          `(A) ${liveGame.awayTeam.nickName} - ${liveGame.awayScore}`
+        ),
         generateEmptyGopherLine(),
-        generateGopherInfoMessage("Games Below This Have Not Started"),
-        ...gamesNotYetStarted
+        generateGopherInfoMessage(`Venue - ${liveGame.venue}`),
+        generateGopherInfoMessage(
+          `Kickoff - ${datefns.format(
+            liveGame.kickOffTime,
+            "dddd Do MMM, h:mm a"
+          )}`
+        ),
+        generateGopherInfoMessage(`Game Clock - ${liveGame.gameSecondsElapsed}`)
       ];
-    }
-
-    const selectedGame = games.find(g => g.id === message);
-
-    if (!selectedGame) {
+    } catch (e) {
+      if (!e.message.includes("404")) {
+        console.error("unknown error", e);
+      }
       return [
         {
           description: "No Game Found",
@@ -79,29 +86,15 @@ export class GopherNrlServer implements IGopherServer {
         }
       ];
     }
-
-    return [
-      generateGopherInfoMessage(
-        `(H) ${selectedGame.homeTeam.name} - ${selectedGame.homeTeam.score}`
-      ),
-      generateGopherInfoMessage(
-        `(A) ${selectedGame.awayTeam.name} - ${selectedGame.awayTeam.score}`
-      ),
-      generateEmptyGopherLine(),
-      generateGopherInfoMessage(`Venue - ${selectedGame.venue}`),
-      generateGopherInfoMessage(
-        `Kickoff - ${datefns.format(
-          selectedGame.clock.kickOffTime,
-          "dddd Do MMM, h:mm a"
-        )}`
-      ),
-      generateGopherInfoMessage(
-        `Game Clock - ${selectedGame.clock.currentGameTime}`
-      )
-    ];
   }
 
-  public async init() {
-    await this.fetchNrlGames();
+  public async handleInput(message: string): Promise<IPreGopher[]> {
+    if (isEmptyCRLF(message)) {
+      return await this.handleDirectoryListing();
+    }
+
+    return await this.handleSpecificGame(message);
   }
+
+  public async init() {}
 }

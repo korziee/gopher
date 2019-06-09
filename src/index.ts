@@ -1,6 +1,6 @@
-import { RootServer } from "./servers/root";
-import { GopherNrlServer } from "./servers/nrl";
 import { GopherFileServer } from "./servers/file";
+import { GopherNrlServer } from "./servers/nrl";
+import { RootServer } from "./servers/root";
 
 if (!process.env.PORT) {
   throw Error("PORT is required, please set it in the env file.");

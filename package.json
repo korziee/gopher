@@ -18,7 +18,7 @@
     }
   },
   "dependencies": {
-    "@korziee/nrl": "github:korziee/nrl-crawler",
+    "nrl-api": "github:korziee/nrl-crawler",
     "date-fns": "^1.30.1",
     "dotenv": "^8.0.0"
   },
@@ -27,7 +27,6 @@
     "husky": "^2.3.0",
     "nodemon": "^1.18.10",
     "sync-dotenv": "^2.1.0",
-    "tslint": "^5.14.0",
     "typescript": "^3.5.1"
   }
 }
