@@ -14,7 +14,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run env"
+      "pre-commit": "yarn run env"
     }
   },
   "dependencies": {
