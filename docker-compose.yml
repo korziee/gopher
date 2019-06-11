@@ -1,0 +1,12 @@
+version: "3"
+services:
+  gopher:
+    # env file is ignored in docker ignore, so we pass it in
+    env_file: .env
+    # set prod env from here, imitating a export NODE_ENV=production
+    environment:
+      NODE_ENV: production
+    # server will use port 70
+    ports:
+      - 70:3070
+    build: .

@@ -8,8 +8,9 @@
   "license": "MIT",
   "scripts": {
     "build:watch": "npx tsc -w",
-    "build:prod": "npx tsc && export NODE_ENV=production && pm2 start 2 --node-args='-r dotenv/config'",
-    "start": "npx nodemon -r dotenv/config compiled/index.js -w compiled",
+    "build": "npx tsc",
+    "start:prod": "node -r dotenv/config compiled/index.js",
+    "start:watch": "npx nodemon -r dotenv/config compiled/index.js -w compiled",
     "env": "sync-dotenv"
   },
   "husky": {
