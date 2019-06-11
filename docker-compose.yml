@@ -8,5 +8,5 @@ services:
       NODE_ENV: production
     # server will use port 70
     ports:
-      - 70:3070
+      - 70:70
     build: .
