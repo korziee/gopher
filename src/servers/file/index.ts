@@ -3,11 +3,12 @@ import * as path from "path";
 import { IGopherServer } from "../../models/GopherServer";
 import { IPreGopher } from "../../models/IPreGopher";
 import { ItemTypes } from "../../models/ItemTypes";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { Symbols } from "../../symbols";
 import { IGopherCore } from "../../core";
 const fs = fsNoPromises.promises;
 
+@injectable()
 export class GopherFileServer implements IGopherServer {
   private directory: string;
   private debug: boolean;

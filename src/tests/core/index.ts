@@ -59,3 +59,23 @@ test("filterInput strips away the CRLF if the input is more than that", t => {
 //     "5testing123\ttest-handler\tlocal\t70\r\n2this-is-a-description\tfile handle\tlocal\t70\r\n."
 //   );
 // });
+
+test.only("ConvertToJson", t => {
+  const json = {
+    foo: "hello world",
+    bar: {
+      barval: "lorem ipsum",
+      baz: {
+        bazval: "testing"
+      }
+    }
+  };
+
+  const core = myContainer.get<IGopherCore>(Symbols.GopherCore);
+  const GopherMap = core.convertJsonToGopherMap(json);
+
+  const expectedGopherMap = new Map([["/", "tetst"]]);
+
+  t.deepEqual(GopherMap, expectedGopherMap, "message");
+  console.log("ehllo");
+});
