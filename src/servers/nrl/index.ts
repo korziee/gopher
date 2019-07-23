@@ -1,15 +1,15 @@
 import { INrlMatch, NrlApi } from "nrl-api/compiled/index";
 import * as datefns from "date-fns";
-import {
-  generateEmptyGopherLine,
-  generateGopherInfoMessage,
-  isEmptyCRLF
-} from "../../core";
 import { IGopherServer } from "../../models/GopherServer";
 import { IPreGopher } from "../../models/IPreGopher";
 import { ItemTypes } from "../../models/ItemTypes";
+import { inject, injectable } from "inversify";
+import { Symbols } from "../../symbols";
+import { IGopherCore } from "../../core";
 
+@injectable()
 export class GopherNrlServer implements IGopherServer {
+  constructor(@inject(Symbols.GopherCore) private _gopherCore: IGopherCore) {}
   private NrlApi = new NrlApi();
   /**
    * Fetches nrl games through the nrl-crawler package.
@@ -46,10 +46,14 @@ export class GopherNrlServer implements IGopherServer {
       );
 
     return [
-      generateGopherInfoMessage("Games Below This Have Started"),
+      this._gopherCore.generateGopherInfoMessage(
+        "Games Below This Have Started"
+      ),
       ...gamesStarted,
-      generateEmptyGopherLine(),
-      generateGopherInfoMessage("Games Below This Have Not Started"),
+      this._gopherCore.generateEmptyGopherLine(),
+      this._gopherCore.generateGopherInfoMessage(
+        "Games Below This Have Not Started"
+      ),
       ...gamesNotYetStarted
     ];
   }
@@ -58,21 +62,23 @@ export class GopherNrlServer implements IGopherServer {
     try {
       const liveGame = await this.NrlApi.getMatchDetails(matchId);
       return [
-        generateGopherInfoMessage(
+        this._gopherCore.generateGopherInfoMessage(
           `(H) ${liveGame.homeTeam.nickName} - ${liveGame.homeScore}`
         ),
-        generateGopherInfoMessage(
+        this._gopherCore.generateGopherInfoMessage(
           `(A) ${liveGame.awayTeam.nickName} - ${liveGame.awayScore}`
         ),
-        generateEmptyGopherLine(),
-        generateGopherInfoMessage(`Venue - ${liveGame.venue}`),
-        generateGopherInfoMessage(
+        this._gopherCore.generateEmptyGopherLine(),
+        this._gopherCore.generateGopherInfoMessage(`Venue - ${liveGame.venue}`),
+        this._gopherCore.generateGopherInfoMessage(
           `Kickoff - ${datefns.format(
             liveGame.kickOffTime,
             "dddd Do MMM, h:mm a"
           )}`
         ),
-        generateGopherInfoMessage(`Game Clock - ${liveGame.gameSecondsElapsed}`)
+        this._gopherCore.generateGopherInfoMessage(
+          `Game Clock - ${liveGame.gameSecondsElapsed}`
+        )
       ];
     } catch (e) {
       if (!e.message.includes("404")) {
@@ -89,7 +95,7 @@ export class GopherNrlServer implements IGopherServer {
   }
 
   public async handleInput(message: string): Promise<IPreGopher[]> {
-    if (isEmptyCRLF(message)) {
+    if (this._gopherCore.isEmptyCRLF(message)) {
       return await this.handleDirectoryListing();
     }
 

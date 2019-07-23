@@ -2,14 +2,6 @@ import * as datefns from "date-fns";
 import * as fsNoProm from "fs";
 import * as net from "net";
 
-import {
-  filterInput,
-  generateEmptyGopherLine,
-  generateGopherFromAscii,
-  generateGopherInfoMessage,
-  transformInformationToGopherText,
-  isEmptyCRLF
-} from "../../core";
 import { getDateStringInSydney } from "../../helpers/getDateStringInSydney";
 import { IPreGopher } from "../../models/IPreGopher";
 import { ItemTypes } from "../../models/ItemTypes";
@@ -17,13 +9,24 @@ import { IGopherServer } from "../../models/GopherServer";
 import { IGopherText } from "../../models/IGopherText";
 import { IGopherModule } from "../../models/IGopherModule";
 import { IRootStates } from "../../models/IRootStates";
+import { IGopherCore } from "../../core";
+import { Symbols } from "../../symbols";
+import { injectable, inject } from "inversify";
 
 const fs = fsNoProm.promises;
 
-export class RootServer {
-  private readonly host: string;
-  private readonly port: number;
-  private readonly plugins: Map<
+export interface IRootGopherServer {
+  init: any;
+  start: any;
+}
+
+@injectable()
+export class RootServer implements IRootGopherServer {
+  constructor(@inject(Symbols.GopherCore) private _gopherCore: IGopherCore) {}
+
+  private host: string;
+  private port: number;
+  private plugins: Map<
     string,
     Pick<
       IGopherModule,
@@ -38,12 +41,6 @@ export class RootServer {
    */
   private banner: string;
 
-  constructor(hostname: string, port: number, plugins: IGopherModule[]) {
-    this.host = hostname;
-    this.port = port;
-    this.addPlugins(plugins);
-  }
-
   /**
    * Returns the state in which a path should be chosen based on the input.
    *
@@ -56,7 +53,10 @@ export class RootServer {
      * In Gopher, if the input is a CRLF, return the root directory, or index.
      * However, we also want to respond if the input only contains a "/\r\n" too.
      */
-    if (isEmptyCRLF(input) || (input[0] === "/" && !pluginHandler)) {
+    if (
+      this._gopherCore.isEmptyCRLF(input) ||
+      (input[0] === "/" && !pluginHandler)
+    ) {
       return "root_listing";
     }
 
@@ -100,7 +100,7 @@ export class RootServer {
         .map(
           (v): IPreGopher[] => {
             return [
-              generateGopherInfoMessage(v.descriptionLong),
+              this._gopherCore.generateGopherInfoMessage(v.descriptionLong),
               {
                 description: v.descriptionShort,
                 handler: "/" + v.handler,
@@ -113,20 +113,20 @@ export class RootServer {
         )
         .flat();
 
-      return transformInformationToGopherText([
-        ...generateGopherFromAscii(this.banner),
-        generateEmptyGopherLine(),
-        generateEmptyGopherLine(),
-        generateGopherInfoMessage(
+      return this._gopherCore.transformInformationToGopherText([
+        ...this._gopherCore.generateGopherFromAscii(this.banner),
+        this._gopherCore.generateEmptyGopherLine(),
+        this._gopherCore.generateEmptyGopherLine(),
+        this._gopherCore.generateGopherInfoMessage(
           datefns.format(getDateStringInSydney(), "Do of MMM YYYY")
         ),
-        generateEmptyGopherLine(),
+        this._gopherCore.generateEmptyGopherLine(),
         ...pluginMessages
       ]);
     }
 
     if (state === "no_slash_found") {
-      return transformInformationToGopherText([
+      return this._gopherCore.transformInformationToGopherText([
         {
           description: "All handlers begin with '/'",
           handler: "",
@@ -138,7 +138,7 @@ export class RootServer {
     }
 
     if (state === "message_too_long") {
-      return transformInformationToGopherText([
+      return this._gopherCore.transformInformationToGopherText([
         {
           description: "Nice try...",
           handler: "",
@@ -150,7 +150,7 @@ export class RootServer {
     }
 
     if (state === "not_found") {
-      return transformInformationToGopherText([
+      return this._gopherCore.transformInformationToGopherText([
         {
           description: `Nothing found with the handler '${input}'`,
           handler: "",
@@ -166,7 +166,7 @@ export class RootServer {
         .get(pluginHandler)
         .class.handleInput(pluginMessage.join("/"));
 
-      return transformInformationToGopherText(
+      return this._gopherCore.transformInformationToGopherText(
         this.appendRootServerInfo(preGopher, pluginHandler)
       );
     }
@@ -176,7 +176,7 @@ export class RootServer {
         .get(pluginHandler)
         .class.handleInput("\r\n");
 
-      return transformInformationToGopherText(
+      return this._gopherCore.transformInformationToGopherText(
         this.appendRootServerInfo(preGopher, pluginHandler)
       );
     }
@@ -198,7 +198,8 @@ export class RootServer {
        */
       this.plugins.set(plugin.handler, {
         ...plugin,
-        class: new plugin.class()
+        // todo - lol bit of hack hahah
+        class: new plugin.class(this._gopherCore)
       });
     });
   }
@@ -232,7 +233,7 @@ export class RootServer {
    * @param socket
    */
   private async handleData(data: Buffer, socket: net.Socket): Promise<void> {
-    const message = filterInput(data.toString());
+    const message = this._gopherCore.filterInput(data.toString());
     console.log("Message received", message);
 
     // get the state based on the input
@@ -246,7 +247,11 @@ export class RootServer {
     });
   }
 
-  public async init() {
+  public async init(hostname: string, port: number, plugins: IGopherModule[]) {
+    this.host = hostname;
+    this.port = port;
+    this.addPlugins(plugins);
+
     // initialise all plugins.
     await Promise.all(
       [...this.plugins.values()].map(g => g.class.init(g.initParams))

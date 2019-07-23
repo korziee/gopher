@@ -19,9 +19,11 @@
     }
   },
   "dependencies": {
-    "nrl-api": "github:korziee/nrl-crawler",
     "date-fns": "^1.30.1",
-    "dotenv": "^8.0.0"
+    "dotenv": "^8.0.0",
+    "inversify": "^5.0.1",
+    "nrl-api": "github:korziee/nrl-crawler",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/node": "^11.12.0",

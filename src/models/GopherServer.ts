@@ -16,4 +16,5 @@ export interface IGopherServer {
   handleInput: (input: string) => Promise<IPreGopher[]>;
 }
 
-export type IGopherServerConstructor = new () => IGopherServer;
+// export type IGopherServerConstructor = new () => IGopherServer;
+export type IGopherServerConstructor = { new (...args: any[]): IGopherServer };

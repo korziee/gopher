@@ -1,17 +1,21 @@
 import * as fsNoPromises from "fs";
 import * as path from "path";
-import { isEmptyCRLF } from "../../core";
 import { IGopherServer } from "../../models/GopherServer";
 import { IPreGopher } from "../../models/IPreGopher";
 import { ItemTypes } from "../../models/ItemTypes";
+import { inject } from "inversify";
+import { Symbols } from "../../symbols";
+import { IGopherCore } from "../../core";
 const fs = fsNoPromises.promises;
 
 export class GopherFileServer implements IGopherServer {
   private directory: string;
   private debug: boolean;
 
+  constructor(@inject(Symbols.GopherCore) private _gopherCore: IGopherCore) {}
+
   public async handleInput(handle: string): Promise<IPreGopher[]> {
-    const direntPath = isEmptyCRLF(handle)
+    const direntPath = this._gopherCore.isEmptyCRLF(handle)
       ? this.directory
       : path.join(this.directory, handle);
 

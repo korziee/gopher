@@ -1,6 +1,11 @@
+import "reflect-metadata";
+
+import { myContainer } from "./inversify";
 import { GopherFileServer } from "./servers/file";
 import { GopherNrlServer } from "./servers/nrl";
-import { RootServer } from "./servers/root";
+import { IRootGopherServer } from "./servers/root";
+import { IGopherModule } from "./models/IGopherModule";
+import { Symbols } from "./symbols";
 
 if (!process.env.PORT) {
   throw Error("PORT is required, please set it in the env file.");
@@ -10,7 +15,7 @@ if (!process.env.HOST) {
   throw Error("HOST is required, please set it in the env file.");
 }
 
-const plugins = [];
+const plugins: IGopherModule[] = [];
 
 if (process.env.GOPHER_NRL_PLUGIN === "true") {
   plugins.push({
@@ -38,12 +43,10 @@ if (process.env.GOPHER_FILE_PLUGIN === "true") {
   });
 }
 
-const server = new RootServer(
-  process.env.HOST,
-  parseInt(process.env.PORT, 10),
-  plugins
-);
+const RootServer = myContainer.get<IRootGopherServer>(Symbols.GopherRootServer);
 
-server.init().then(() => {
-  server.start();
-});
+RootServer.init(process.env.HOST, parseInt(process.env.PORT, 10), plugins).then(
+  () => {
+    RootServer.start();
+  }
+);
