@@ -95,6 +95,7 @@ export class GopherNrlServer implements IGopherServer {
   }
 
   public async handleInput(message: string): Promise<IPreGopher[]> {
+    console.log(1, message);
     if (this._gopherCore.isEmptyCRLF(message)) {
       return await this.handleDirectoryListing();
     }

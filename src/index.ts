@@ -6,6 +6,7 @@ import { GopherNrlServer } from "./servers/nrl";
 import { IRootGopherServer } from "./servers/root";
 import { IGopherModule } from "./models/IGopherModule";
 import { Symbols } from "./symbols";
+import { GopherJsonServer } from "./servers/json";
 
 if (!process.env.PORT) {
   throw Error("PORT is required, please set it in the env file.");
@@ -15,7 +16,14 @@ if (!process.env.HOST) {
   throw Error("HOST is required, please set it in the env file.");
 }
 
-const plugins: IGopherModule[] = [];
+const plugins: IGopherModule[] = [
+  {
+    class: GopherJsonServer,
+    descriptionLong: "Check out this lit json to gopher converter",
+    descriptionShort: "JSON TO GOPHER",
+    handler: "json"
+  }
+];
 
 if (process.env.GOPHER_NRL_PLUGIN === "true") {
   plugins.push({
