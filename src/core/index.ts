@@ -1,14 +1,13 @@
-import { IGopherText } from "../models/IGopherText";
+import { IGopherMap } from "../models/IGopherMap";
 import { IPreGopher } from "../models/IPreGopher";
 import { ItemTypes } from "../models/ItemTypes";
 import { injectable } from "inversify";
 
-export type GopherMap = Map<string, IGopherText>;
+export type GopherMap = Map<string, IGopherMap>;
 
 export interface IGopherCore {
-  filterInput: (input: string) => string;
   isEmptyCRLF: (input: string) => boolean;
-  transformInformationToGopherText: (dir: IPreGopher[]) => IGopherText;
+  transformInformationToGopherText: (dir: IPreGopher[]) => IGopherMap;
   generateGopherFromAscii(ascii: string): IPreGopher[];
   generateGopherInfoMessage(message: string): IPreGopher;
   generateEmptyGopherLine(): IPreGopher;
@@ -22,9 +21,7 @@ export class GopherCore implements IGopherCore {
    *
    * @param dir
    */
-  public transformInformationToGopherText(
-    preGopher: IPreGopher[]
-  ): IGopherText {
+  public transformInformationToGopherText(preGopher: IPreGopher[]): IGopherMap {
     const gopherText =
       preGopher.reduce((gopher, entry) => {
         if (entry.type === ItemTypes.File && entry.isRaw) {
@@ -43,13 +40,6 @@ export class GopherCore implements IGopherCore {
    */
   public isEmptyCRLF(input: string) {
     return input === "\r\n";
-  }
-
-  public filterInput(input: string): string {
-    if (this.isEmptyCRLF(input)) {
-      return input;
-    }
-    return input.replace("\n", "").replace("\r", "");
   }
 
   public generateEmptyGopherLine(): IPreGopher {

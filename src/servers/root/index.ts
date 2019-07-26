@@ -6,7 +6,7 @@ import { getDateStringInSydney } from "../../helpers/getDateStringInSydney";
 import { IPreGopher } from "../../models/IPreGopher";
 import { ItemTypes } from "../../models/ItemTypes";
 import { IGopherServer } from "../../models/GopherServer";
-import { IGopherText } from "../../models/IGopherText";
+import { IGopherMap } from "../../models/IGopherMap";
 import { IGopherModule } from "../../models/IGopherModule";
 import { IRootStates } from "../../models/IRootStates";
 import { IGopherCore } from "../../core";
@@ -40,6 +40,18 @@ export class RootServer implements IRootGopherServer {
    * String containing the contents on the banner message.
    */
   private banner: string;
+
+  /**
+   * Filters the input into a usable state
+   */
+  private filterInput(input: string): string {
+    // if empty, don't modify.
+    if (this._gopherCore.isEmptyCRLF(input)) {
+      return input;
+    }
+    // otherwise, remove the linebreaks
+    return input.replace("\n", "").replace("\r", "");
+  }
 
   /**
    * Returns the state in which a path should be chosen based on the input.
@@ -93,7 +105,7 @@ export class RootServer implements IRootGopherServer {
   private async getGopherByState(
     state: IRootStates,
     input: string
-  ): Promise<IGopherText> {
+  ): Promise<IGopherMap> {
     const [, pluginHandler, ...pluginMessage] = input.split("/");
     if (state === "root_listing") {
       const pluginMessages: IPreGopher[] = [...this.plugins.values()]
@@ -233,7 +245,7 @@ export class RootServer implements IRootGopherServer {
    * @param socket
    */
   private async handleData(data: Buffer, socket: net.Socket): Promise<void> {
-    const message = this._gopherCore.filterInput(data.toString());
+    const message = this.filterInput(data.toString());
     console.log("Message received", message);
 
     // get the state based on the input

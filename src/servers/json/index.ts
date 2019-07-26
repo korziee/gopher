@@ -9,14 +9,6 @@ import axios from "axios";
 import * as uuid from "uuid";
 import { getTime } from "date-fns";
 
-export type IGopherJsonServerInput = { [key: string]: any };
-
-/**
- * TODO
- *
- * Refactor this file!
- */
-
 @injectable()
 export class GopherJsonServer implements IGopherServer {
   // the json to iterate over
@@ -44,6 +36,23 @@ export class GopherJsonServer implements IGopherServer {
       // remove from map
       this.jsonRequestMap.delete(key);
     });
+  }
+
+  private async handleRootRequest() {
+    // return the search directory
+    return [
+      this._gopherCore.generateGopherInfoMessage(
+        "Enter the URL of the json you wish to view."
+      ),
+      this._gopherCore.generateGopherInfoMessage(
+        "Nothing is validated and this server will die if you don't use perfect json data :sadfaceemoji:"
+      ),
+      {
+        description: "Click enter to bring up query box!",
+        handler: "search",
+        type: ItemTypes.Search
+      }
+    ];
   }
 
   public async init() {
@@ -82,12 +91,7 @@ export class GopherJsonServer implements IGopherServer {
     }
 
     // it's a property on the object, return the contents directly
-    return [
-      {
-        description: property,
-        type: ItemTypes.Info
-      }
-    ];
+    return [this._gopherCore.generateGopherInfoMessage(property)];
   }
 
   /**
@@ -100,22 +104,8 @@ export class GopherJsonServer implements IGopherServer {
   public async handleInput(input: string): Promise<IPreGopher[]> {
     if (this._gopherCore.isEmptyCRLF(input)) {
       // return the search directory
-      return [
-        {
-          description: "Enter the URL of the json you wish to view.",
-          type: ItemTypes.Info
-        },
-        {
-          description:
-            "Nothing is validated and this server will die if you don't use perfect json data :sadfaceemoji:",
-          type: ItemTypes.Info
-        },
-        {
-          description: "Click enter to bring up query box!",
-          handler: "search",
-          type: ItemTypes.Search
-        }
-      ];
+      const response = await this.handleRootRequest();
+      return response;
     }
 
     const [selector, searchquery] = input.split("\t");
@@ -127,23 +117,25 @@ export class GopherJsonServer implements IGopherServer {
         json = await this.fetchJson(searchquery);
       } catch (e) {
         return [
-          {
-            description:
-              "ya god damn had to try and break it didn't you? Asshole.",
-            type: ItemTypes.Info
-          }
+          this._gopherCore.generateGopherInfoMessage(
+            "ya god damn had to try and break it didn't you? Asshole."
+          )
         ];
       }
+
       const id = uuid.v4();
       this.jsonRequestMap.set(id, {
         data: json,
         timestamp: getTime(new Date())
       });
-      const res = await this.getGopherMenuFromObjectLikeValue(json).map(x => ({
-        ...x,
-        handler: id + "/" + x.handler
-      }));
-      return res;
+
+      const response = await this.getGopherMenuFromObjectLikeValue(json).map(
+        x => ({
+          ...x,
+          handler: id + "/" + x.handler
+        })
+      );
+      return response;
     }
 
     const [id, innerSelector] = selector.split("/");
@@ -152,11 +144,9 @@ export class GopherJsonServer implements IGopherServer {
 
     if (!mapValue) {
       return [
-        {
-          description:
-            "Contents of json were cleared/timedout, please try the search again!",
-          type: ItemTypes.Info
-        }
+        this._gopherCore.generateGopherInfoMessage(
+          "Contents of json were cleared/timedout, please try the search again!"
+        )
       ];
     }
 
