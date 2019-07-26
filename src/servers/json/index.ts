@@ -62,38 +62,6 @@ export class GopherJsonServer implements IGopherServer {
     }, 60000);
   }
 
-  private getGopherMenuFromObjectLikeValue(value: any): IPreGopher[] {
-    return Object.keys(value).map(key => {
-      return {
-        description: key,
-        handler: key,
-        type: ItemTypes.Menu
-      } as IPreGopher;
-    });
-  }
-
-  private getGopherFromJsonByInput(input: string, json: any): IPreGopher[] {
-    // query is for the root. return a listing of the contents
-    if (this._gopherCore.isEmptyCRLF(input)) {
-      return this.getGopherMenuFromObjectLikeValue(json);
-    }
-
-    const property = _.get(json, input);
-
-    // it's objectlike, for json this means it's either an array or an object, return a directory
-    if (_.isObject(property)) {
-      const menu = this.getGopherMenuFromObjectLikeValue(property).map(x => ({
-        ...x,
-        handler: input + "." + x.handler
-      }));
-
-      return menu;
-    }
-
-    // it's a property on the object, return the contents directly
-    return [this._gopherCore.generateGopherInfoMessage(property)];
-  }
-
   /**
    * This was made in less than an hour and does not pay any attention
    * to the facts
@@ -129,12 +97,10 @@ export class GopherJsonServer implements IGopherServer {
         timestamp: getTime(new Date())
       });
 
-      const response = await this.getGopherMenuFromObjectLikeValue(json).map(
-        x => ({
-          ...x,
-          handler: id + "/" + x.handler
-        })
-      );
+      const response = await this._gopherCore.generateGopherMapFromJson({
+        json: json,
+        customHandler: id + "/"
+      });
       return response;
     }
 
@@ -150,13 +116,11 @@ export class GopherJsonServer implements IGopherServer {
       ];
     }
 
-    const value = this.getGopherFromJsonByInput(
-      innerSelector,
-      mapValue.data
-    ).map(x => ({
-      ...x,
-      handler: id + "/" + x.handler
-    }));
+    const value = this._gopherCore.generateGopherMapFromJson({
+      customHandler: id + "/",
+      json: mapValue.data,
+      selector: innerSelector
+    });
     return value;
   }
 }
