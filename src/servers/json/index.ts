@@ -7,6 +7,7 @@ import * as _ from "lodash";
 import { ItemTypes } from "../../models/ItemTypes";
 import axios from "axios";
 import * as uuid from "uuid";
+import { getTime } from "date-fns";
 
 export type IGopherJsonServerInput = { [key: string]: any };
 
@@ -19,17 +20,38 @@ export type IGopherJsonServerInput = { [key: string]: any };
 @injectable()
 export class GopherJsonServer implements IGopherServer {
   // the json to iterate over
-  private jsonRequestMap: Map<string, any> = new Map();
+  private jsonRequestMap: Map<
+    string,
+    { data: any; timestamp: number }
+  > = new Map();
 
   constructor(@inject(Symbols.GopherCore) private _gopherCore: IGopherCore) {}
 
-  // @ts-ignore
   private async fetchJson(url: string) {
     const response = await axios.get(url);
     return response.data;
   }
 
-  public async init(json: IGopherJsonServerInput) {}
+  private cleanupInMemoryJsonRequestMaps(thresholdInSeconds: number) {
+    const currentTime = getTime(new Date());
+    const mapContents = [...this.jsonRequestMap.entries()];
+
+    mapContents.forEach(([key, value]) => {
+      if (value.timestamp - thresholdInSeconds < currentTime) {
+        // less than cleanup value, we don't need to clear it yet
+        return;
+      }
+      // remove from map
+      this.jsonRequestMap.delete(key);
+    });
+  }
+
+  public async init() {
+    // run cleanup every 60 seconds.
+    setInterval(() => {
+      this.cleanupInMemoryJsonRequestMaps(60 * 5);
+    }, 60000);
+  }
 
   private getGopherMenuFromObjectLikeValue(value: any): IPreGopher[] {
     return Object.keys(value).map(key => {
@@ -71,7 +93,6 @@ export class GopherJsonServer implements IGopherServer {
   /**
    * This was made in less than an hour and does not pay any attention
    * to the facts
-   * - that memory will slowly accumulate over time
    * - any network calls are not validated
    * - this service will fall over after like 10 requests
    * - ay lol big TODO
@@ -114,7 +135,10 @@ export class GopherJsonServer implements IGopherServer {
         ];
       }
       const id = uuid.v4();
-      this.jsonRequestMap.set(id, json);
+      this.jsonRequestMap.set(id, {
+        data: json,
+        timestamp: getTime(new Date())
+      });
       const res = await this.getGopherMenuFromObjectLikeValue(json).map(x => ({
         ...x,
         handler: id + "/" + x.handler
@@ -124,9 +148,22 @@ export class GopherJsonServer implements IGopherServer {
 
     const [id, innerSelector] = selector.split("/");
 
-    const json = this.jsonRequestMap.get(id);
+    const mapValue = this.jsonRequestMap.get(id);
 
-    const value = this.getGopherFromJsonByInput(innerSelector, json).map(x => ({
+    if (!mapValue) {
+      return [
+        {
+          description:
+            "Contents of json were cleared/timedout, please try the search again!",
+          type: ItemTypes.Info
+        }
+      ];
+    }
+
+    const value = this.getGopherFromJsonByInput(
+      innerSelector,
+      mapValue.data
+    ).map(x => ({
       ...x,
       handler: id + "/" + x.handler
     }));
