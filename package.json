@@ -11,7 +11,7 @@
     "build": "npx tsc",
     "start:prod": "node -r dotenv/config compiled/index.js",
     "start:watch": "npx nodemon -r dotenv/config compiled/index.js -w compiled",
-    "test": "yarn build && ava compiled/tests",
+    "test": "yarn build && ava",
     "env": "sync-dotenv"
   },
   "husky": {

@@ -13,3 +13,8 @@ test("isEmptyCRLF returns true if CRLF", t => {
   const core = myContainer.get<IGopherCore>(Symbols.GopherCore);
   t.is(core.isEmptyCRLF("\r\n"), true);
 });
+
+test("isEmptyCRLF returns false with multiple CRLF signals", t => {
+  const core = myContainer.get<IGopherCore>(Symbols.GopherCore);
+  t.is(core.isEmptyCRLF("\r\n\r\n"), false);
+});
