@@ -10,8 +10,8 @@ const fs = fsNoPromises.promises;
 
 @injectable()
 export class GopherFileServer implements IGopherServer {
-  private directory: string;
-  private debug: boolean;
+  private directory!: string;
+  private debug!: boolean;
 
   constructor(@inject(Symbols.GopherCore) private _gopherCore: IGopherCore) {}
 
@@ -47,7 +47,7 @@ export class GopherFileServer implements IGopherServer {
           selector = ItemTypes.File;
         } else if (type === "directory") {
           selector = ItemTypes.Menu;
-        } else if (type === null) {
+        } else {
           selector = ItemTypes.Error;
         }
         return {

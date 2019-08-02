@@ -24,8 +24,8 @@ export interface IRootGopherServer {
 export class RootServer implements IRootGopherServer {
   constructor(@inject(Symbols.GopherCore) private _gopherCore: IGopherCore) {}
 
-  private host: string;
-  private port: number;
+  private host!: string;
+  private port!: number;
   private plugins: Map<
     string,
     Pick<
@@ -34,12 +34,12 @@ export class RootServer implements IRootGopherServer {
     > & { class: IGopherServer }
   > = new Map();
 
-  private server: net.Server;
+  private server!: net.Server;
   private initialised = false;
   /**
    * String containing the contents on the banner message.
    */
-  private banner: string;
+  private banner!: string;
 
   /**
    * Filters the input into a usable state
@@ -175,7 +175,7 @@ export class RootServer implements IRootGopherServer {
 
     if (state === "child_handle") {
       const preGopher = await this.plugins
-        .get(pluginHandler)
+        .get(pluginHandler)!
         .class.handleInput(pluginMessage.join("/"));
 
       return this._gopherCore.transformInformationToGopherText(
@@ -185,7 +185,7 @@ export class RootServer implements IRootGopherServer {
 
     if (state === "child_listing") {
       const preGopher = await this.plugins
-        .get(pluginHandler)
+        .get(pluginHandler)!
         .class.handleInput("\r\n");
 
       return this._gopherCore.transformInformationToGopherText(
