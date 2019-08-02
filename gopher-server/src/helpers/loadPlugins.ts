@@ -1,6 +1,6 @@
 import { GopherFileServer } from "../servers/file";
 import { GopherNrlServer } from "../servers/nrl";
-import { IGopherModule } from "../models/IGopherModule";
+import { IGopherModule } from "gopher-models/IGopherModule";
 import { GopherJsonServer } from "../servers/json";
 
 export const loadPlugins = () => {

@@ -1,7 +1,6 @@
-import { IGopherMap } from "../models/IGopherMap";
-import { IPreGopher } from "../models/IPreGopher";
-import { ItemTypes } from "../models/ItemTypes";
-import { injectable } from "inversify";
+import { IGopherMap } from "gopher-models/IGopherMap";
+import { IPreGopher } from "gopher-models/IPreGopher";
+import { ItemTypes } from "gopher-models/ItemTypes";
 import * as _ from "lodash";
 
 export type GopherMap = Map<string, IGopherMap>;
@@ -23,7 +22,6 @@ export interface IGopherCore {
   generateEmptyGopherLine(): IPreGopher;
 }
 
-@injectable()
 export class GopherCore implements IGopherCore {
   private generateGopherMapFromObject(object: Object): IPreGopher[] {
     return Object.keys(object).map(key => {

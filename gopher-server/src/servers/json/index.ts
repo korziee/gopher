@@ -1,10 +1,10 @@
-import { IGopherServer } from "../../models/GopherServer";
+import { IGopherServer } from "gopher-models/GopherServer";
+import { IPreGopher } from "gopher-models/IPreGopher";
+import { ItemTypes } from "gopher-models/ItemTypes";
 import { injectable, inject } from "inversify";
 import { Symbols } from "../../symbols";
-import { IGopherCore } from "../../core";
-import { IPreGopher } from "../../models/IPreGopher";
+import { IGopherCore } from "gopher-core/src/index";
 import * as _ from "lodash";
-import { ItemTypes } from "../../models/ItemTypes";
 import axios from "axios";
 import * as uuid from "uuid";
 import { getTime } from "date-fns";

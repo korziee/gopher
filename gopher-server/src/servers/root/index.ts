@@ -3,13 +3,13 @@ import * as fsNoProm from "fs";
 import * as net from "net";
 
 import { getDateStringInSydney } from "../../helpers/getDateStringInSydney";
-import { IPreGopher } from "../../models/IPreGopher";
-import { ItemTypes } from "../../models/ItemTypes";
-import { IGopherServer } from "../../models/GopherServer";
-import { IGopherMap } from "../../models/IGopherMap";
-import { IGopherModule } from "../../models/IGopherModule";
-import { IRootStates } from "../../models/IRootStates";
-import { IGopherCore } from "../../core";
+import { IPreGopher } from "gopher-models/IPreGopher";
+import { ItemTypes } from "gopher-models/ItemTypes";
+import { IGopherServer } from "gopher-models/GopherServer";
+import { IGopherMap } from "gopher-models/IGopherMap";
+import { IGopherModule } from "gopher-models/IGopherModule";
+import { IRootStates } from "gopher-models/IRootStates";
+import { IGopherCore } from "gopher-core/src/index";
 import { Symbols } from "../../symbols";
 import { injectable, inject } from "inversify";
 

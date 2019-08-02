@@ -1,11 +1,11 @@
 import * as fsNoPromises from "fs";
 import * as path from "path";
-import { IGopherServer } from "../../models/GopherServer";
-import { IPreGopher } from "../../models/IPreGopher";
-import { ItemTypes } from "../../models/ItemTypes";
+import { IGopherServer } from "gopher-models/GopherServer";
+import { IPreGopher } from "gopher-models/IPreGopher";
+import { ItemTypes } from "gopher-models/ItemTypes";
 import { inject, injectable } from "inversify";
 import { Symbols } from "../../symbols";
-import { IGopherCore } from "../../core";
+import { IGopherCore } from "gopher-core/src/index";
 const fs = fsNoPromises.promises;
 
 @injectable()

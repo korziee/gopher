@@ -1,42 +1,8 @@
 {
-  "name": "gopher",
-  "version": "1.0.0",
-  "description": "a gopher server implemented in node",
-  "main": "index.js",
-  "repository": "git@github.com:korziee/gopher.git",
-  "author": "Kory <kory.porter2@gmail.com>",
-  "license": "MIT",
-  "scripts": {
-    "build:watch": "npx tsc -w",
-    "build": "npx tsc",
-    "start:prod": "node -r dotenv/config compiled/index.js",
-    "start:watch": "npx nodemon -r dotenv/config compiled/index.js -w compiled",
-    "test": "yarn build && ava",
-    "env": "sync-dotenv"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn run env"
-    }
-  },
-  "dependencies": {
-    "@types/lodash": "^4.14.136",
-    "@types/uuid": "^3.4.5",
-    "ava": "^2.2.0",
-    "axios": "^0.19.0",
-    "date-fns": "^1.30.1",
-    "dotenv": "^8.0.0",
-    "inversify": "^5.0.1",
-    "lodash": "^4.17.15",
-    "nrl-api": "github:korziee/nrl-crawler",
-    "reflect-metadata": "^0.1.13",
-    "uuid": "^3.3.2"
-  },
-  "devDependencies": {
-    "@types/node": "^11.12.0",
-    "husky": "^2.3.0",
-    "nodemon": "^1.18.10",
-    "sync-dotenv": "^2.1.0",
-    "typescript": "^3.5.1"
-  }
+  "private": true,
+  "workspaces": [
+    "./gopher-server",
+    "./gopher-core",
+    "./gopher-models"
+  ]
 }
