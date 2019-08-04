@@ -1,6 +1,6 @@
-import { IGopherMap } from "gopher-models/IGopherMap";
-import { IPreGopher } from "gopher-models/IPreGopher";
-import { ItemTypes } from "gopher-models/ItemTypes";
+import { IGopherMap } from "./models/IGopherMap";
+import { IPreGopher } from "./models/IPreGopher";
+import { ItemTypes } from "./models/ItemTypes";
 import * as _ from "lodash";
 
 export type GopherMap = Map<string, IGopherMap>;

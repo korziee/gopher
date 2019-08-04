@@ -1,8 +1,7 @@
 {
   "private": true,
   "workspaces": [
-    "./gopher-server",
-    "./gopher-core",
-    "./gopher-models"
+    "gopher-server",
+    "gopher-core"
   ]
 }
