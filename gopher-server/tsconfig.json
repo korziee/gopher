@@ -9,15 +9,18 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "lib": ["esnext"],
-    "types": ["reflect-metadata", "node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
-    "outDir": "./compiled",
+    "outDir": "./lib",
     "declaration": true,
-    "strict": true,
-    "typeRoots": ["node_modules/@types", "src/types"]
+    "strict": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/*"],
+  "references": [
+    {
+      "path": "../gopher-core/"
+    }
+  ],
   "exclude": ["./node_modules"]
 }

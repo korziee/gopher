@@ -2,14 +2,15 @@ import * as datefns from "date-fns";
 import * as fsNoProm from "fs";
 import * as net from "net";
 
+import { IPreGopher } from "gopher-core/lib/models/IPreGopher";
+import { ItemTypes } from "gopher-core/lib/models/ItemTypes";
+import { IGopherServer } from "gopher-core/lib/models/GopherServer";
+import { IGopherMap } from "gopher-core/lib/models/IGopherMap";
+import { IGopherModule } from "gopher-core/lib/models/IGopherModule";
+import { IRootStates } from "gopher-core/lib/models/IRootStates";
+import { IGopherCore } from "gopher-core/lib/logic/";
+
 import { getDateStringInSydney } from "../../helpers/getDateStringInSydney";
-import { IPreGopher } from "gopher-models/IPreGopher";
-import { ItemTypes } from "gopher-models/ItemTypes";
-import { IGopherServer } from "gopher-models/GopherServer";
-import { IGopherMap } from "gopher-models/IGopherMap";
-import { IGopherModule } from "gopher-models/IGopherModule";
-import { IRootStates } from "gopher-models/IRootStates";
-import { IGopherCore } from "gopher-core/src/index";
 import { Symbols } from "../../symbols";
 import { injectable, inject } from "inversify";
 

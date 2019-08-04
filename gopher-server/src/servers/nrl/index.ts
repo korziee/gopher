@@ -1,11 +1,11 @@
 import { INrlMatch, NrlApi } from "nrl-api/compiled/index";
+import { IGopherServer } from "gopher-core/lib/models/GopherServer";
+import { IPreGopher } from "gopher-core/lib/models/IPreGopher";
+import { ItemTypes } from "gopher-core/lib/models/ItemTypes";
+import { IGopherCore } from "gopher-core/lib/logic/index";
 import * as datefns from "date-fns";
-import { IGopherServer } from "gopher-models/GopherServer";
-import { IPreGopher } from "gopher-models/IPreGopher";
-import { ItemTypes } from "gopher-models/ItemTypes";
 import { inject, injectable } from "inversify";
 import { Symbols } from "../../symbols";
-import { IGopherCore } from "gopher-core/src/index";
 
 @injectable()
 export class GopherNrlServer implements IGopherServer {

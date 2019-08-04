@@ -1,9 +1,9 @@
-import { IGopherServer } from "gopher-models/GopherServer";
-import { IPreGopher } from "gopher-models/IPreGopher";
-import { ItemTypes } from "gopher-models/ItemTypes";
 import { injectable, inject } from "inversify";
+import { IGopherServer } from "gopher-core/lib/models/GopherServer";
+import { IPreGopher } from "gopher-core/lib/models/IPreGopher";
+import { ItemTypes } from "gopher-core/lib/models/ItemTypes";
+import { IGopherCore } from "gopher-core/lib/logic/";
 import { Symbols } from "../../symbols";
-import { IGopherCore } from "gopher-core/src/index";
 import * as _ from "lodash";
 import axios from "axios";
 import * as uuid from "uuid";

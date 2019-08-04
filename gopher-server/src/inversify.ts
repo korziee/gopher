@@ -1,10 +1,11 @@
 import "reflect-metadata";
 
 import { Container, decorate, injectable } from "inversify";
-import { GopherCore, IGopherCore } from "gopher-core/src/index";
+import { GopherCore, IGopherCore } from "gopher-core/lib/logic";
+import { IGopherServer } from "gopher-core/lib/models/GopherServer";
+
 import { GopherFileServer } from "./servers/file";
 import { Symbols } from "./symbols";
-import { IGopherServer } from "gopher-models/GopherServer";
 import { GopherNrlServer } from "./servers/nrl";
 import { IRootGopherServer, RootServer } from "./servers/root";
 
