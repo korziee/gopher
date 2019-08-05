@@ -2,6 +2,7 @@ import { GopherFileServer } from "../servers/file";
 import { GopherNrlServer } from "../servers/nrl";
 import { IGopherModule } from "gopher-core/lib/models/IGopherModule";
 import { GopherJsonServer } from "../servers/json";
+import { GopherMapServer } from "../servers/gopher-map";
 
 export const loadPlugins = () => {
   const plugins: IGopherModule[] = [];
@@ -39,6 +40,24 @@ export const loadPlugins = () => {
       descriptionLong: "Check out this lit json to gopher converter",
       descriptionShort: "JSON TO GOPHER",
       handler: "json"
+    });
+  }
+
+  if (process.env.GOPHER_MAP_PLUGIN === "true") {
+    if (!process.env.GOPHER_MAP_PLUGIN_DIRECTORY) {
+      throw new Error(
+        "To enable gopher map plugin, ensure a directory is set in the environment file"
+      );
+    }
+    plugins.push({
+      class: GopherMapServer,
+      descriptionLong: "Gopher holes created using files, folders, gophermaps!",
+      descriptionShort: "GOPHER MAP",
+      handler: "map",
+      initParams: {
+        // TODO - add check in for the trailing slash
+        dir: process.env.GOPHER_MAP_PLUGIN_DIRECTORY
+      }
     });
   }
   return plugins;

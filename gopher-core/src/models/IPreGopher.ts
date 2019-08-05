@@ -1,6 +1,6 @@
 import { ItemTypes } from "./ItemTypes";
 export interface IPreGopher {
-  type: ItemTypes;
+  type: ItemTypes | string;
   description: string;
   // handler is required if this is a directory
   handler?: string;

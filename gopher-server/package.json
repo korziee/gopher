@@ -7,10 +7,10 @@
   "author": "Kory <kory.porter@hotmail.com>",
   "license": "MIT",
   "scripts": {
-    "build:watch": "npx tsc -w",
+    "build:watch": "npx tsc -b -w",
     "build": "npx tsc",
-    "start:prod": "node -r dotenv/config compiled/index.js",
-    "start:watch": "npx nodemon -r dotenv/config compiled/index.js -w compiled",
+    "start:prod": "node -r dotenv/config lib/index.js`",
+    "start:watch": "npx nodemon -r dotenv/config lib/index.js -w lib",
     "test": "yarn build && ava",
     "env": "sync-dotenv"
   },

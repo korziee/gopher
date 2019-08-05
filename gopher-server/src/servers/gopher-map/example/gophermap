@@ -1,0 +1,5 @@
+iHello, this is an example gophermap demonstrating it's use with the gophermap plugin.
+i
+1Cats	/cats	localhost	70
+1Dogs	/dogs	localhost	70
+0Lorem Ipsum	/lorem.txt	localhost	70
