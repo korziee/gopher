@@ -2829,9 +2829,9 @@ npmlog@^4.0.2:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-"nrl-api@github:korziee/nrl-crawler":
+"nrl-crawler@github:korziee/nrl-crawler#ecb9bd77474d3c60f30c834d89c087937d09e2c6":
   version "1.0.0"
-  resolved "https://codeload.github.com/korziee/nrl-crawler/tar.gz/b612f834604c8a07a5c75006175da5d7e6038349"
+  resolved "https://codeload.github.com/korziee/nrl-crawler/tar.gz/ecb9bd77474d3c60f30c834d89c087937d09e2c6"
   dependencies:
     axios "^0.18.0"
     typescript "^3.4.5"

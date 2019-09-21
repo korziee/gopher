@@ -1,4 +1,4 @@
-import { INrlMatch, NrlApi } from "nrl-api/compiled/index";
+import { INrlMatch, NrlApi } from "nrl-crawler/compiled/index";
 import { IGopherServer } from "gopher-core/lib/models/GopherServer";
 import { IPreGopher } from "gopher-core/lib/models/IPreGopher";
 import { ItemTypes } from "gopher-core/lib/models/ItemTypes";
@@ -59,6 +59,7 @@ export class GopherNrlServer implements IGopherServer {
   }
 
   private async handleSpecificGame(matchId: string) {
+    console.log(2, matchId);
     try {
       const liveGame = await this.NrlApi.getMatchDetails(matchId);
       return [
