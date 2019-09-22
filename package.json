@@ -3,5 +3,11 @@
   "workspaces": [
     "gopher-server",
     "gopher-core"
-  ]
+  ],
+  "scripts": {
+    "build-server": "cd ./gopher-server && npx tsc -b",
+    "build-server:watch": "yarn build-server -w",
+    "start-server:prod": "cd ./gopher-server && node -r dotenv/config lib/index.js",
+    "start-server:watch": "cd ./gopher-server && npx nodemon -r dotenv/config lib/index.js -w lib"
+  }
 }
