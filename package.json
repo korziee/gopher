@@ -1,0 +1,11 @@
+{
+  "name": "gopher",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  }
+}

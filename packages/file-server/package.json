@@ -1,0 +1,10 @@
+{
+  "name": "file-server",
+  "version": "1.0.0",
+  "dependencies": {
+    "gopher-core": "0.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  }
+}
