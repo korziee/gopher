@@ -1,10 +1,29 @@
 {
-  "name": "gopher-core",
-  "version": "0.0.0",
+  "name": "@korziee/gopher-core",
+  "version": "0.0.0-beta.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "devDependencies": {
     "@types/node": "^14.11.10",
     "typescript": "^4.0.3"
-  }
+  },
+  "description": "TODO",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/korziee/gopher/tree/master/packages/gopher-core"
+  },
+  "keywords": [
+    "gopher",
+    "utility",
+    "RFC1436"
+  ],
+  "author": "Kory Porter",
+  "license": "ISC"
 }
