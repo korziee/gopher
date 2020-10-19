@@ -3,13 +3,29 @@ import * as net from "net";
 import { GopherItemTypes, GopherMap, GopherPlugin } from "./types";
 import { GopherItem, isNewLine } from "./util";
 
+/**
+ * Used to start a gopher server.
+ */
 export class GopherServer {
   private plugins: GopherPlugin[] = [];
 
-  constructor(private host: string, private port: number) {}
+  constructor(
+    /**
+     * The hostname that gets used to construct the root directory listing for all the plugins
+     *
+     * @note this is also passed down to each `GopherPlugin` in the `init` method.
+     */
+    private host: string,
+    /**
+     * The port that gets used to construct the root directory listing for all the plugins
+     *
+     * @note this is also passed down to each `GopherPlugin` in the `init` method.
+     */
+    private port: number
+  ) {}
 
   public addPlugin(plugin: GopherPlugin) {
-    if (plugin.name.includes("s")) {
+    if (plugin.name.search(/\s/)) {
       throw new Error("Plugin name cannot include any spaces");
     }
     this.plugins.push();
@@ -79,8 +95,10 @@ export class GopherServer {
       }
     }
 
+    const matchingPlugin = this.plugins.find((p) => p.name === pluginHandler);
+
     // if the pluginHandler does not exist in the plugins Map, we will not go further, as nothing exists
-    if (!this.plugins.find((p) => p.name === pluginHandler)) {
+    if (!matchingPlugin) {
       return (
         new GopherItem(
           GopherItemTypes.Error,
@@ -91,16 +109,21 @@ export class GopherServer {
 
     // we already know the parent exists here,
     // and now we know that it's not a root call to the parent.
-    const plugin = await this.plugins.find((p) => p.name === pluginHandler)!;
-    const res = await plugin.handleInput(pluginMessage.join("/"));
+    const res = await matchingPlugin.handleInput(pluginMessage.join("/"));
 
     return typeof res === "string"
       ? res
-      : res.map((r) => r.serialize(`/${plugin.name}`)).join("") + ".";
+      : res.map((r) => r.serialize(`/${matchingPlugin.name}`)).join("") + ".";
   }
 
+  /**
+   * This method starts the GopherServer, it will initialise all of your GopherPlugin's and start a
+   * TCP server on the port you have given.
+   */
   public async start() {
-    await Promise.all(this.plugins.map(async (p) => p.init()));
+    await Promise.all(
+      this.plugins.map(async (p) => p.init(this.host, this.port))
+    );
 
     const server = net.createServer((socket) => {
       socket.once("data", async (data) => {
@@ -108,11 +131,6 @@ export class GopherServer {
         const gopherMap = await this.getGopherMap(input);
 
         socket.write(gopherMap, () => socket.end());
-      });
-
-      socket.once("close", (hadError) => {
-        if (hadError) {
-        }
       });
 
       socket.on("error", console.error);
@@ -126,64 +144,64 @@ export class GopherServer {
   }
 }
 
-async function bootstrap() {
-  const server = new GopherServer("localhost", 70);
+// async function bootstrap() {
+//   const server = new GopherServer("localhost", 70);
 
-  class TestPlugin implements GopherPlugin {
-    descriptionLong = "I am ting plugin woooo!!";
-    descriptionShort = "test plugin";
-    name = "testplugin";
+//   class TestPlugin implements GopherPlugin {
+//     descriptionLong = "I am ting plugin woooo!!";
+//     descriptionShort = "test plugin";
+//     name = "testplugin";
 
-    public async handleInput() {
-      return "hello from TestPlugin";
-    }
+//     public async handleInput() {
+//       return "hello from TestPlugin";
+//     }
 
-    async init(): Promise<void> {}
-  }
+//     async init(): Promise<void> {}
+//   }
 
-  class TingPlugin implements GopherPlugin {
-    descriptionLong = "I am ting plugin yeah";
-    descriptionShort = "ting plugin";
-    name = "tingplugin";
+//   class TingPlugin implements GopherPlugin {
+//     descriptionLong = "I am ting plugin yeah";
+//     descriptionShort = "ting plugin";
+//     name = "tingplugin";
 
-    public async handleInput(input: string) {
-      if (input === "child_dir") {
-        return [
-          new GopherItem(
-            GopherItemTypes.File,
-            "another menu",
-            "child_dir/t",
-            "localhost",
-            70
-          ),
-        ];
-      }
-      // return "hello from TingPlugin";
-      return [
-        new GopherItem(
-          GopherItemTypes.Menu,
-          "child directory",
-          "child_dir",
-          "localhost",
-          70
-        ),
-        new GopherItem(
-          GopherItemTypes.Info,
-          "Info item",
-          "hey",
-          "localhost",
-          70
-        ),
-      ];
-    }
+//     public async handleInput(input: string) {
+//       if (input === "child_dir") {
+//         return [
+//           new GopherItem(
+//             GopherItemTypes.File,
+//             "another menu",
+//             "child_dir/t",
+//             "localhost",
+//             70
+//           ),
+//         ];
+//       }
+//       // return "hello from TingPlugin";
+//       return [
+//         new GopherItem(
+//           GopherItemTypes.Menu,
+//           "child directory",
+//           "child_dir",
+//           "localhost",
+//           70
+//         ),
+//         new GopherItem(
+//           GopherItemTypes.Info,
+//           "Info item",
+//           "hey",
+//           "localhost",
+//           70
+//         ),
+//       ];
+//     }
 
-    async init(): Promise<void> {}
-  }
+//     async init(): Promise<void> {}
+//   }
 
-  server.addPlugin(new TestPlugin());
-  server.addPlugin(new TingPlugin());
+//   server.addPlugin(new TestPlugin());
+//   server.addPlugin(new TingPlugin());
 
-  await server.start();
-}
+//   await server.start();
+// }
 
-bootstrap();
+// bootstrap();
