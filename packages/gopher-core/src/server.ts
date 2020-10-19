@@ -25,10 +25,11 @@ export class GopherServer {
   ) {}
 
   public addPlugin(plugin: GopherPlugin) {
-    if (plugin.name.search(/\s/)) {
+    if (plugin.name.search(/\s/) !== -1) {
       throw new Error("Plugin name cannot include any spaces");
     }
-    this.plugins.push();
+
+    this.plugins.push(plugin);
   }
 
   private cleanInput(input: string): string {
@@ -140,7 +141,9 @@ export class GopherServer {
       throw err;
     });
 
-    server.listen(this.port, () => {});
+    server.listen(this.port, () => {
+      console.log(`Gopher server started on ${this.port}`);
+    });
   }
 }
 

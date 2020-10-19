@@ -23,7 +23,17 @@ export class GopherItem {
      * Lets say the selector is `/cats/shorthair` and is a directory entity type and the user selects this item in a gopher client, the gopher server will receive "/cats/shorthair" and will have to make a decision on how to handle that.
      */
     private selector?: string,
+    /**
+     * The hostname to use so that gopher clients know where to contact when they want a resource.
+     *
+     * @note in most cases, you will be fine to use the `hostname` passed into the `GopherPlugin`'s `init` method when the server starts.
+     */
     private host?: string,
+    /**
+     * The port to use so that gopher clients know where to contact when they want a resource.
+     *
+     * @note in most cases, you will be fine to use the `port` passed into the `GopherPlugin`'s `init` method when the server starts.
+     */
     private port?: number
   ) {
     this.type = type;

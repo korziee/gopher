@@ -32,12 +32,12 @@ export interface GopherPlugin {
   // descriptionLong: string;
 
   /**
-   * You can use this method to initialise your `GopherPluin`! The `GopherServer` will call this method
+   * You can use this method to initialise your `GopherPluGin`! The `GopherServer` will call this method
    * on each of your plugins before it starts accepting traffic.
    *
    * This method is called with the hostname and port that the `GopherServer` was constructed with.
    */
-  init: (hostname: string, port: number) => Promise<void>;
+  init(hostname: string, port: number): Promise<void>;
   /**
    * This method anticipates that you will handle the handler input and respond with either an array of GopherItem (ready to be serialized) or a string (for files)!
    *
@@ -47,5 +47,5 @@ export interface GopherPlugin {
    * I.e. if the root server receives a handler "nrl/games", it will strip away the server selector "nrl"
    * and just pass "games" to the child server.
    */
-  handleInput: (input: string) => Promise<GopherItem[] | string>;
+  handleInput(input: string): Promise<GopherItem[] | string>;
 }
