@@ -4,12 +4,15 @@ import { GopherItemTypes, GopherMap, GopherPlugin } from "./types";
 import { GopherItem, isNewLine } from "./util";
 
 export class GopherServer {
-  plugins: GopherPlugin[] = [];
+  private plugins: GopherPlugin[] = [];
 
   constructor(private host: string, private port: number) {}
 
   public addPlugin(plugin: GopherPlugin) {
-    this.plugins.push(plugin);
+    if (plugin.name.includes("s")) {
+      throw new Error("Plugin name cannot include any spaces");
+    }
+    this.plugins.push();
   }
 
   private cleanInput(input: string): string {
