@@ -13,13 +13,13 @@ export class GopherServer {
     /**
      * The hostname that gets used to construct the root directory listing for all the plugins
      *
-     * @note this is also passed down to each `GopherPlugin` in the `init` method.
+     * @note this is also passed down to each {@link GopherPlugin} in the {@link GopherPlugin.init init} method.
      */
     private host: string,
     /**
      * The port that gets used to construct the root directory listing for all the plugins
      *
-     * @note this is also passed down to each `GopherPlugin` in the `init` method.
+     * @note this is also passed down to each {@link GopherPlugin} in the {@link GopherPlugin.init init} method.
      */
     private port: number
   ) {}
@@ -118,7 +118,7 @@ export class GopherServer {
   }
 
   /**
-   * This method starts the GopherServer, it will initialise all of your GopherPlugin's and start a
+   * This method starts the {@link GopherServer}, it will initialise all of your {@link GopherPlugin}'s and start a
    * TCP server on the port you have given.
    */
   public async start() {

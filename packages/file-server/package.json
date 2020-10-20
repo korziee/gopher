@@ -1,8 +1,8 @@
 {
   "name": "file-server",
-  "version": "0.0.0-beta.2",
+  "version": "0.0.0",
   "dependencies": {
-    "gopher-core": "0.0.0"
+    "@korziee/gopher-core": "0.0.0-beta.3"
   },
   "devDependencies": {
     "typescript": "^4.0.3"

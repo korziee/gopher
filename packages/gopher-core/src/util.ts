@@ -4,7 +4,7 @@ import { GopherItemTypes } from "./types";
  * Gopher helper class for use with gopher plugins.
  *
  * This class represents a single line of unserialized Gopher text.
- * Right before any text gets sent back to the client, the `GopherServer` will call the `serialize` method on each item.
+ * Right before any text gets sent back to the client, the {@link GopherServer} will call the {@link GopherItem.serialize serialize} method on each item.
  */
 export class GopherItem {
   constructor(
@@ -26,13 +26,13 @@ export class GopherItem {
     /**
      * The hostname to use so that gopher clients know where to contact when they want a resource.
      *
-     * @note in most cases, you will be fine to use the `hostname` passed into the `GopherPlugin`'s `init` method when the server starts.
+     * @note in most cases, you will be fine to use the `hostname` passed into the {@link GopherPlugin}'s {@link GopherPlugin.init init} method when the server starts.
      */
     private host?: string,
     /**
      * The port to use so that gopher clients know where to contact when they want a resource.
      *
-     * @note in most cases, you will be fine to use the `port` passed into the `GopherPlugin`'s `init` method when the server starts.
+     * @note in most cases, you will be fine to use the `port` passed into the {@link GopherPlugin}'s {@link GopherPlugin.init init} method when the server starts.
      */
     private port?: number
   ) {
