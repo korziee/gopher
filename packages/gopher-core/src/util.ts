@@ -5,6 +5,9 @@ import { GopherItemTypes } from "./types";
  *
  * This class represents a single line of unserialized Gopher text.
  * Right before any text gets sent back to the client, the {@link GopherServer} will call the {@link GopherItem.serialize serialize} method on each item.
+ *
+ * This class also contains static utility methods for generating an empty line in Gopher (helpful if you want to space out your GopherHole!)
+ * and also to generate a Gopher info line with you text of choice (Useful for things like a banner).
  */
 export class GopherItem {
   constructor(
@@ -65,6 +68,9 @@ export class GopherItem {
   }
 }
 
+/**
+ * There are a lot of CRLF charcters thrown around in the Gopher dictionary, this function simply takes an input and returns a boolean if the input is an empty CRLF character
+ */
 export function isNewLine(value: string) {
-  return value === "\r\n";
+  return value === "\r\n" || value == "\n\r";
 }

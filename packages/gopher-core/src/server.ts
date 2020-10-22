@@ -9,20 +9,13 @@ import { GopherItem, isNewLine } from "./util";
 export class GopherServer {
   private plugins: GopherPlugin[] = [];
 
-  constructor(
-    /**
-     * The hostname that gets used to construct the root directory listing for all the plugins
-     *
-     * @note this is also passed down to each {@link GopherPlugin} in the {@link GopherPlugin.init init} method.
-     */
-    private host: string,
-    /**
-     * The port that gets used to construct the root directory listing for all the plugins
-     *
-     * @note this is also passed down to each {@link GopherPlugin} in the {@link GopherPlugin.init init} method.
-     */
-    private port: number
-  ) {}
+  /**
+   * @param host The hostname that gets used to construct the root directory listing for all the plugins
+   * @param port The port that gets used to construct the root directory listing for all the plugins
+   *
+   * @note both `host` and `port` are passed down to each {@link GopherPlugin} in the {@link GopherPlugin.init init} method.
+   */
+  constructor(private host: string, private port: number) {}
 
   public addPlugin(plugin: GopherPlugin) {
     if (plugin.name.search(/\s/) !== -1) {
