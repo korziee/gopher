@@ -3,7 +3,7 @@ module.exports = {
   entryPoint: '"index"',
   excludeNotExported: true,
   mode: "library",
-  out: "docs",
+  out: "../../docs",
   theme: "default",
   readme: "none",
 };
