@@ -18,8 +18,8 @@ export class GopherServer {
   constructor(private host: string, private port: number) {}
 
   public addPlugin(plugin: GopherPlugin) {
-    if (plugin.name.search(/\s/) !== -1) {
-      throw new Error("Plugin name cannot include any spaces");
+    if (plugin.selector.search(/\s/) !== -1) {
+      throw new Error("Plugin selector cannot include any spaces");
     }
 
     this.plugins.push(plugin);
@@ -67,11 +67,12 @@ export class GopherServer {
       if (this.plugins.length === 1) {
         const plugin = this.plugins[0];
 
-        const response = await plugin.handleInput("\r\n");
+        const response = await plugin.handleSelector("\r\n");
 
         return typeof response === "string"
           ? response
-          : response.map((r) => r.serialize(`/${plugin.name}`)).join("") + ".";
+          : response.map((r) => r.serialize(`/${plugin.selector}`)).join("") +
+              ".";
       } else {
         return (
           this.plugins
@@ -79,7 +80,7 @@ export class GopherServer {
               new GopherItem(
                 GopherItemTypes.Menu,
                 plugin.descriptionShort,
-                "/" + plugin.name,
+                "/" + plugin.selector,
                 this.host,
                 this.port
               ).serialize()
@@ -89,7 +90,9 @@ export class GopherServer {
       }
     }
 
-    const matchingPlugin = this.plugins.find((p) => p.name === pluginHandler);
+    const matchingPlugin = this.plugins.find(
+      (p) => p.selector === pluginHandler
+    );
 
     // if the pluginHandler does not exist in the plugins Map, we will not go further, as nothing exists
     if (!matchingPlugin) {
@@ -103,11 +106,12 @@ export class GopherServer {
 
     // we already know the parent exists here,
     // and now we know that it's not a root call to the parent.
-    const res = await matchingPlugin.handleInput(pluginMessage.join("/"));
+    const res = await matchingPlugin.handleSelector(pluginMessage.join("/"));
 
     return typeof res === "string"
       ? res
-      : res.map((r) => r.serialize(`/${matchingPlugin.name}`)).join("") + ".";
+      : res.map((r) => r.serialize(`/${matchingPlugin.selector}`)).join("") +
+          ".";
   }
 
   /**

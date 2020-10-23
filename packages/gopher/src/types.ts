@@ -18,11 +18,11 @@ export type GopherMap = string;
 
 export interface GopherPlugin {
   /**
-   * The name of your gopher plugin
+   * The selector of your gopher plugin
    *
-   * @note this is used as a "gopher selector", so please refrain from using spaces
+   * @note this is used as a "selector" in the gopher text when the root server creates a directory listing with a child plugin's items.
    */
-  name: string;
+  selector: string;
   /**
    * The name to be displayed when a "directory listing" is received and you have multiple plugins.
    *
@@ -32,20 +32,20 @@ export interface GopherPlugin {
   // descriptionLong: string;
 
   /**
-   * You can use this method to initialise your `GopherPluGin`! The `GopherServer` will call this method
+   * You can use this method to initialise your `GopherPlugin`. The `GopherServer` will call this method
    * on each of your plugins before it starts accepting traffic.
    *
    * This method is called with the hostname and port that the `GopherServer` was constructed with.
    */
   init(hostname: string, port: number): Promise<void>;
   /**
-   * This method anticipates that you will handle the handler input and respond with either an array of GopherItem (ready to be serialized) or a string (for files)!
+   * This method anticipates that you will handle the selector sent from the gopher client and respond with either an array of GopherItem (ready to be serialized) or a string (for files)!
    *
    * @note If you have multiple plugins being used at once:
    *
-   * This method will receive the user input as if it was hitting the root level gopher server.
+   * This method will receive the selector as if it was hitting the root level gopher server.
    * I.e. if the root server receives a handler "nrl/games", it will strip away the server selector "nrl"
    * and just pass "games" to the child server.
    */
-  handleInput(input: string): Promise<GopherItem[] | string>;
+  handleSelector(selector: string): Promise<GopherItem[] | string>;
 }
