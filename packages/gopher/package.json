@@ -1,6 +1,6 @@
 {
   "name": "@korziee/gopher",
-  "version": "0.0.0-beta.4",
+  "version": "0.0.0-beta.5",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "devDependencies": {
@@ -14,6 +14,7 @@
   },
   "dependencies": {},
   "scripts": {
+    "pre-publish": "yarn tsc && yarn generate-docs && yarn version",
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate-docs": "yarn typedoc && ./scripts/docs.sh"
   },
