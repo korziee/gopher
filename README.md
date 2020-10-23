@@ -21,8 +21,82 @@ The `@korziee/gopher` package exports a few key utility classes that will help y
 ### Getting going with a simple Gopher server
 
 ```typescript
-import { GopherItem, GopherServer } from "@korziee/gopher`
-// TODO: finish example
+import {
+  GopherItem,
+  GopherItemTypes,
+  GopherPlugin,
+  GopherServer,
+  isNewLine,
+} from "@korziee/gopher";
+
+/**
+ * A simple gopher plugin example, it responds with a root directory listing of cats and dogs.
+ * Depending on the users selection, the plugin will then display a directory listing of a couple
+ * of the different breeds.
+ */
+class AnimalGopherPlugin implements GopherPlugin {
+  selector = "animals";
+  descriptionShort = "A gopher plugin displaying animals!";
+  hostname: string = null!;
+  port: number = null!;
+
+  public async init(hostname: string, port: number) {
+    this.hostname = hostname;
+    this.port = port;
+  }
+
+  public async handleSelector(
+    selector: string
+  ): Promise<GopherItem[] | string> {
+    // user or client is requesting a directory listing
+    if (isNewLine(selector)) {
+      return [
+        new GopherItem(
+          GopherItemTypes.Menu,
+          "Cats",
+          "cats",
+          this.hostname,
+          this.port
+        ),
+        new GopherItem(
+          GopherItemTypes.Menu,
+          "Dogs",
+          "dogs",
+          this.hostname,
+          this.port
+        ),
+      ];
+    }
+
+    switch (selector) {
+      case "dogs": {
+        const breeds = ["Boxer", "Doberman", "Labrador", "Retriever"];
+        return breeds.map(
+          (breed) =>
+            // Info item types do not require a hostname or port as no navigation can occur from them, it's more or less just a neat way to print text onto the gopher client.
+            new GopherItem(GopherItemTypes.Info, breed, breed.toLowerCase())
+        );
+      }
+      case "cats": {
+        const breeds = ["Persian", "Maine Coon", "Siamese", "Short Hair"];
+        return breeds.map(
+          (breed) =>
+            // Info item types do not require a hostname or port as no navigation can occur from them, it's more or less just a neat way to print text onto the gopher client.
+            new GopherItem(GopherItemTypes.Info, breed, breed.toLowerCase())
+        );
+      }
+      default: {
+        throw new Error("unknown selector");
+      }
+    }
+  }
+}
+
+const server = new GopherServer("localhost", 70);
+
+server.addPlugin(new AnimalGopherPlugin());
+
+server.start();
 ```
 
 ## Documentation
