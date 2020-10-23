@@ -6,7 +6,7 @@ import {
   isNewLine,
   GopherItem,
   GopherItemTypes,
-} from "gopher-core";
+} from "@korziee/gopher";
 
 class GopherFileSever implements GopherPlugin {
   descriptionShort = "A gopher directory...";

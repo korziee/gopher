@@ -1,5 +1,5 @@
 {
-  "name": "@korziee/gopher-core",
+  "name": "@korziee/gopher",
   "version": "0.0.0-beta.3",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "typedoc": "^0.17.0-3",
     "typescript": "^4.0.3"
   },
-  "description": "TODO",
+  "description": "Provides a collection of utility methods and classes for creating a Gopher server in node.",
   "directories": {
     "test": "tests"
   },
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/korziee/gopher/tree/master/packages/gopher-core"
+    "url": "https://github.com/korziee/gopher/tree/master/packages/gopher"
   },
   "keywords": [
     "gopher",
