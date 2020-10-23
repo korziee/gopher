@@ -1,23 +1,25 @@
 {
-  "name": "@korziee/gopher-core",
+  "name": "@korziee/gopher",
   "version": "0.0.0-beta.3",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "devDependencies": {
     "@types/node": "^14.11.10",
+    "typedoc": "^0.17.0-3",
     "typescript": "^4.0.3"
   },
-  "description": "TODO",
+  "description": "Provides a collection of utility methods and classes for creating a Gopher server in node.",
   "directories": {
     "test": "tests"
   },
   "dependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-docs": "yarn typedoc && ./scripts/docs.sh"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/korziee/gopher/tree/master/packages/gopher-core"
+    "url": "https://github.com/korziee/gopher/tree/master/packages/gopher"
   },
   "keywords": [
     "gopher",

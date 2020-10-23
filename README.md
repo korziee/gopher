@@ -1,40 +1,30 @@
-Next steps
+# Gopher
 
-- bring all of the core logic into the core folder
-  - remove the class, no need
-  - make sure all types are exported so that other gopher servers can import them
-  - GopherItem class
-    - takes in type, description, handler, host, port, isRaw (?)
-    - has methods:
-      - public transformToText()
-        following two lines are optional: you could just have separate funcs
-      - static generateInfoItem()
-      - static generateEmptyItem()
-- bring the core server logic into core
+<p align="center">
+  <img src="https://media.giphy.com/media/F0uUtL7lmALCM/giphy.gif">
+</p>
 
-  - it should be configurable like it is now
-  - the handleInput function of the extendable servers should return an array of GopherItems or a string.
-  - it should accept either one IGopherServer or an array of IGopherServer's. if it is only one, it does not need a root handler for that item.
+## What's Gopher?
 
-  TODO:
+> Gopher is inherently a very simple protocol that wraps around TCP and uses plain text communication. If you’re willing to stray away from what’s defined in the RFC you can use gopher for an array of cool things! You could build a JSON viewer in gopher, a solitaire game, a sports score viewer, a tic tac toe game, it really is endless.
 
-- publish core on NPM
-- write documentation
-- bring the other servers over
+For more on this, check out my [blog post](https://www.koryporter.com/2019/08/04/gopher-the-father-of-the-world-wide-web) on gopher.
 
----
+## So what's in this repository?
 
-Instead of PreGopher, what should it be called?
+This repository houses the `@korziee/gopher` package which defines the core logic and rules around using gopher with node, and also a collection of example use cases, like a file-server, json-viewer, etc.
 
-- GopherDescriber
-- GopherDesc
-- GopherJSON
-- GopherItem?
+## How do I get started using this?
 
-what does it do?
+The `@korziee/gopher` package exports a few key utility classes that will help you get started, namely [`GopherItem`](https://korziee.github.io/gopher/classes/_index_.gopheritem.html) and [`GopherServer`](https://korziee.github.io/gopher/classes/_index_.gopherserver.html)
 
-- it describes the type of gopher entry, i.e. html, text, etc.
+### Getting going with a simple Gopher server
 
----
+```typescript
+import { GopherItem, GopherServer } from "@korziee/gopher`
+// TODO: finish example
+```
 
-lets say we have the file server being used on it's own (without mutliple plugins), as a consu
+## Documentation
+
+The rest of the documentation (including useful types) can be found [here](https://korziee.github.io/gopher/)
