@@ -37,12 +37,9 @@ import {
 class AnimalGopherPlugin implements GopherPlugin {
   selector = "animals";
   descriptionShort = "A gopher plugin displaying animals!";
-  hostname: string = null!;
-  port: number = null!;
 
-  public async init(hostname: string, port: number) {
-    this.hostname = hostname;
-    this.port = port;
+  public async init() {
+    // we don't need to do any initialisation for this plugin.
   }
 
   public async handleSelector(
@@ -51,20 +48,8 @@ class AnimalGopherPlugin implements GopherPlugin {
     // user or client is requesting a directory listing
     if (isNewLine(selector)) {
       return [
-        new GopherItem(
-          GopherItemTypes.Menu,
-          "Cats",
-          "cats",
-          this.hostname,
-          this.port
-        ),
-        new GopherItem(
-          GopherItemTypes.Menu,
-          "Dogs",
-          "dogs",
-          this.hostname,
-          this.port
-        ),
+        new GopherItem(GopherItemTypes.Menu, "Cats", "cats"),
+        new GopherItem(GopherItemTypes.Menu, "Dogs", "dogs"),
       ];
     }
 

@@ -34,10 +34,8 @@ export interface GopherPlugin {
   /**
    * You can use this method to initialise your `GopherPlugin`. The `GopherServer` will call this method
    * on each of your plugins before it starts accepting traffic.
-   *
-   * This method is called with the hostname and port that the `GopherServer` was constructed with.
    */
-  init(hostname: string, port: number): Promise<void>;
+  init(): Promise<void>;
   /**
    * This method anticipates that you will handle the selector sent from the gopher client and respond with either an array of GopherItem (ready to be serialized) or a string (for files)!
    *

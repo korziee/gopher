@@ -7,13 +7,12 @@ import { GopherItem, isNewLine } from "./util";
  * Used to start a gopher server.
  */
 export class GopherServer {
+  public server: net.Server | null = null;
   private plugins: GopherPlugin[] = [];
 
   /**
-   * @param host The hostname that gets used to construct the root directory listing for all the plugins
-   * @param port The port that gets used to construct the root directory listing for all the plugins
-   *
-   * @note both `host` and `port` are passed down to each {@link GopherPlugin} in the {@link GopherPlugin.init init} method.
+   * @param host The hostname that gets used to construct the root directory listing for all the plugins, and is assigned as the default for all GopherItems if no hostname is provided
+   * @param port The port that gets used to construct the root directory listing for all the plugins, and is assigned as the default for all GopherItems if no port is provided
    */
   constructor(private host: string, private port: number) {}
 
@@ -23,6 +22,23 @@ export class GopherServer {
     }
 
     this.plugins.push(plugin);
+  }
+
+  private serializePluginResponse(
+    pluginResponse: string | GopherItem[],
+    pluginSelector: string
+  ): string {
+    return typeof pluginResponse === "string"
+      ? pluginResponse
+      : pluginResponse
+          .map((item) => {
+            item.host = item.host || this.host;
+            item.port = item.port || this.port;
+            item.selector = `/${pluginSelector}/${item.selector}`;
+
+            return item.serialize();
+          })
+          .join("") + ".";
   }
 
   private cleanInput(input: string): string {
@@ -69,10 +85,7 @@ export class GopherServer {
 
         const response = await plugin.handleSelector("\r\n");
 
-        return typeof response === "string"
-          ? response
-          : response.map((r) => r.serialize(`/${plugin.selector}`)).join("") +
-              ".";
+        return this.serializePluginResponse(response, plugin.selector);
       } else {
         return (
           this.plugins
@@ -106,12 +119,11 @@ export class GopherServer {
 
     // we already know the parent exists here,
     // and now we know that it's not a root call to the parent.
-    const res = await matchingPlugin.handleSelector(pluginMessage.join("/"));
+    const response = await matchingPlugin.handleSelector(
+      pluginMessage.join("/")
+    );
 
-    return typeof res === "string"
-      ? res
-      : res.map((r) => r.serialize(`/${matchingPlugin.selector}`)).join("") +
-          ".";
+    return this.serializePluginResponse(response, matchingPlugin.selector);
   }
 
   /**
@@ -119,11 +131,9 @@ export class GopherServer {
    * TCP server on the port you have given.
    */
   public async start() {
-    await Promise.all(
-      this.plugins.map(async (p) => p.init(this.host, this.port))
-    );
+    await Promise.all(this.plugins.map(async (p) => p.init()));
 
-    const server = net.createServer((socket) => {
+    this.server = net.createServer((socket) => {
       socket.once("data", async (data) => {
         const input = this.cleanInput(data.toString());
         const gopherMap = await this.getGopherMap(input);
@@ -134,74 +144,12 @@ export class GopherServer {
       socket.on("error", console.error);
     });
 
-    server.on("error", (err) => {
+    this.server.on("error", (err) => {
       throw err;
     });
 
-    server.listen(this.port, () => {
+    this.server.listen(this.port, () => {
       console.log(`Gopher server started on ${this.port}`);
     });
   }
 }
-
-// async function bootstrap() {
-//   const server = new GopherServer("localhost", 70);
-
-//   class TestPlugin implements GopherPlugin {
-//     descriptionLong = "I am ting plugin woooo!!";
-//     descriptionShort = "test plugin";
-//     name = "testplugin";
-
-//     public async handleInput() {
-//       return "hello from TestPlugin";
-//     }
-
-//     async init(): Promise<void> {}
-//   }
-
-//   class TingPlugin implements GopherPlugin {
-//     descriptionLong = "I am ting plugin yeah";
-//     descriptionShort = "ting plugin";
-//     name = "tingplugin";
-
-//     public async handleInput(input: string) {
-//       if (input === "child_dir") {
-//         return [
-//           new GopherItem(
-//             GopherItemTypes.File,
-//             "another menu",
-//             "child_dir/t",
-//             "localhost",
-//             70
-//           ),
-//         ];
-//       }
-//       // return "hello from TingPlugin";
-//       return [
-//         new GopherItem(
-//           GopherItemTypes.Menu,
-//           "child directory",
-//           "child_dir",
-//           "localhost",
-//           70
-//         ),
-//         new GopherItem(
-//           GopherItemTypes.Info,
-//           "Info item",
-//           "hey",
-//           "localhost",
-//           70
-//         ),
-//       ];
-//     }
-
-//     async init(): Promise<void> {}
-//   }
-
-//   server.addPlugin(new TestPlugin());
-//   server.addPlugin(new TingPlugin());
-
-//   await server.start();
-// }
-
-// bootstrap();

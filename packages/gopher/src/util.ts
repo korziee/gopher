@@ -25,36 +25,29 @@ export class GopherItem {
      * E.g.
      * Lets say the selector is `/cats/shorthair` and is a directory entity type and the user selects this item in a gopher client, the gopher server will receive "/cats/shorthair" and will have to make a decision on how to handle that.
      */
-    private selector?: string,
+    public selector?: string,
     /**
      * The hostname to use so that gopher clients know where to contact when they want a resource.
      *
-     * @note in most cases, you will be fine to use the `hostname` passed into the {@link GopherPlugin}'s {@link GopherPlugin.init init} method when the server starts.
+     * @note this is optional as in most cases you will not need to modify the hostname of a GopherItem unless you were planning on sending the client to a different GopherHole. By default, the {@link GopherServer} will set the hostname to be what was set when the server started.
      */
-    private host?: string,
+    public host?: string,
     /**
      * The port to use so that gopher clients know where to contact when they want a resource.
      *
-     * @note in most cases, you will be fine to use the `port` passed into the {@link GopherPlugin}'s {@link GopherPlugin.init init} method when the server starts.
+     * @note this is optional as in most cases you will not need to modify the port of a GopherItem unless you were planning on sending the client to a different port. By default, the {@link GopherServer} will set the port to be what was set when the server started.
      */
-    private port?: number
+    public port?: number
   ) {
     this.type = type;
     this.description = description;
-
-    // need a selector/host/port for all non info/errors?
     this.selector = selector;
     this.host = host;
     this.port = port;
   }
 
-  // TODO: rootHandler seems like a rootserver specific thing that consumers should not need to worry about.
-  public serialize(rootSelector?: string): string {
-    const handler = rootSelector
-      ? `${rootSelector}/${this.selector}`
-      : this.selector;
-
-    return `${this.type}${this.description}\t${handler || ""}\t${
+  public serialize(): string {
+    return `${this.type}${this.description}\t${this.selector}\t${
       this.host || ""
     }\t${this.port || ""}\r\n`;
   }

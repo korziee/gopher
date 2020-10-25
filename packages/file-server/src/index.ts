@@ -10,17 +10,11 @@ import {
 
 class GopherFileSever implements GopherPlugin {
   descriptionShort = "A gopher directory...";
-  name = "file";
-
-  private hostname = "";
-  private port: number = null!;
+  selector = "file";
 
   constructor(private directory: string) {}
 
-  public async init(hostname: string, port: number) {
-    this.hostname = hostname;
-    this.port = port;
-
+  public async init() {
     if (
       (await this.getGopherItemTypeForDirent(this.directory)) !==
       GopherItemTypes.Menu
@@ -31,7 +25,7 @@ class GopherFileSever implements GopherPlugin {
     }
   }
 
-  public async handleInput(input: string): Promise<string | GopherItem[]> {
+  public async handleSelector(input: string): Promise<string | GopherItem[]> {
     const direntPath = isNewLine(input)
       ? this.directory
       : path.join(this.directory, input);
@@ -70,9 +64,7 @@ class GopherFileSever implements GopherPlugin {
               directoryDirents[index],
               isDirectoyListingRequest
                 ? directoryDirents[index]
-                : input + "/" + directoryDirents[index],
-              this.hostname,
-              this.port
+                : input + "/" + directoryDirents[index]
             )
         );
       }
