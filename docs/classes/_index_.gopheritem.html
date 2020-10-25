@@ -94,6 +94,14 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_index_.gopheritem.html#host" class="tsd-kind-icon">host</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_index_.gopheritem.html#port" class="tsd-kind-icon">port</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_index_.gopheritem.html#selector" class="tsd-kind-icon">selector</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.gopheritem.html#serialize" class="tsd-kind-icon">serialize</a></li>
@@ -116,7 +124,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/korziee/gopher/blob/f13e4f6/packages/gopher/src/util.ts#L12">util.ts:12</a></li>
+									<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/util.ts#L12">util.ts:12</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -143,26 +151,80 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="host" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> host</h3>
+					<div class="tsd-signature tsd-kind-icon">host<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/util.ts#L34">util.ts:34</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The hostname to use so that gopher clients know where to contact when they want a resource.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>note</dt>
+							<dd><p>this is optional as in most cases you will not need to modify the hostname of a GopherItem unless you were planning on sending the client to a different GopherHole. By default, the <a href="_index_.gopherserver.html">GopherServer</a> will set the hostname to be what was set when the server started.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="port" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> port</h3>
+					<div class="tsd-signature tsd-kind-icon">port<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/util.ts#L40">util.ts:40</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The port to use so that gopher clients know where to contact when they want a resource.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>note</dt>
+							<dd><p>this is optional as in most cases you will not need to modify the port of a GopherItem unless you were planning on sending the client to a different port. By default, the <a href="_index_.gopherserver.html">GopherServer</a> will set the port to be what was set when the server started.</p>
+							</dd>
+						</dl>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="selector" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> selector</h3>
+					<div class="tsd-signature tsd-kind-icon">selector<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/util.ts#L28">util.ts:28</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The selector is what makes this GopherItem unique to a client.</p>
+						</div>
+						<p>E.g.
+						Lets say the selector is <code>/cats/shorthair</code> and is a directory entity type and the user selects this item in a gopher client, the gopher server will receive &quot;/cats/shorthair&quot; and will have to make a decision on how to handle that.</p>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="serialize" class="tsd-anchor"></a>
 					<h3>serialize</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">serialize<span class="tsd-signature-symbol">(</span>rootSelector<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">serialize<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/korziee/gopher/blob/f13e4f6/packages/gopher/src/util.ts#L52">util.ts:52</a></li>
+									<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/util.ts#L49">util.ts:49</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> rootSelector: <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
@@ -177,7 +239,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/korziee/gopher/blob/f13e4f6/packages/gopher/src/util.ts#L66">util.ts:66</a></li>
+									<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/util.ts#L59">util.ts:59</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_index_.gopheritem.html" class="tsd-signature-type">GopherItem</a></h4>
@@ -194,7 +256,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/korziee/gopher/blob/f13e4f6/packages/gopher/src/util.ts#L62">util.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/util.ts#L55">util.ts:55</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -229,6 +291,15 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="_index_.gopheritem.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_index_.gopheritem.html#host" class="tsd-kind-icon">host</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_index_.gopheritem.html#port" class="tsd-kind-icon">port</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_index_.gopheritem.html#selector" class="tsd-kind-icon">selector</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.gopheritem.html#serialize" class="tsd-kind-icon">serialize</a>

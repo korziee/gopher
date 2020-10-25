@@ -90,6 +90,12 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_index_.gopherserver.html#server" class="tsd-kind-icon">server</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.gopherserver.html#addplugin" class="tsd-kind-icon">add<wbr>Plugin</a></li>
@@ -111,15 +117,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/korziee/gopher/blob/f13e4f6/packages/gopher/src/server.ts#L10">server.ts:10</a></li>
+									<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/server.ts#L11">server.ts:11</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
-								<dl class="tsd-comment-tags">
-									<dt>note</dt>
-									<dd><p>both <code>host</code> and <code>port</code> are passed down to each <a href="../interfaces/_index_.gopherplugin.html">GopherPlugin</a> in the <a href="../interfaces/_index_.gopherplugin.html#init">init</a> method.</p>
-									</dd>
-								</dl>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
@@ -127,7 +128,7 @@
 									<h5>host: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>The hostname that gets used to construct the root directory listing for all the plugins</p>
+											<p>The hostname that gets used to construct the root directory listing for all the plugins, and is assigned as the default for all GopherItems if no hostname is provided</p>
 										</div>
 									</div>
 								</li>
@@ -135,7 +136,7 @@
 									<h5>port: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<div class="lead">
-											<p>The port that gets used to construct the root directory listing for all the plugins</p>
+											<p>The port that gets used to construct the root directory listing for all the plugins, and is assigned as the default for all GopherItems if no port is provided</p>
 										</div>
 									</div>
 								</li>
@@ -143,6 +144,19 @@
 							<h4 class="tsd-returns-title">Returns <a href="_index_.gopherserver.html" class="tsd-signature-type">GopherServer</a></h4>
 						</li>
 					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="server" class="tsd-anchor"></a>
+					<h3>server</h3>
+					<div class="tsd-signature tsd-kind-icon">server<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Server</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> = null</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/server.ts#L10">server.ts:10</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -157,7 +171,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/korziee/gopher/blob/f13e4f6/packages/gopher/src/server.ts#L20">server.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/server.ts#L19">server.ts:19</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -180,7 +194,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/korziee/gopher/blob/f13e4f6/packages/gopher/src/server.ts#L121">server.ts:121</a></li>
+									<li>Defined in <a href="https://github.com/korziee/gopher/blob/07dcd42/packages/gopher/src/server.ts#L133">server.ts:133</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -218,6 +232,9 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="_index_.gopherserver.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_index_.gopherserver.html#server" class="tsd-kind-icon">server</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.gopherserver.html#addplugin" class="tsd-kind-icon">add<wbr>Plugin</a>
