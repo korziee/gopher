@@ -7,4 +7,5 @@ module.exports = {
   readme: "none",
   excludeNotExported: true,
   excludePrivate: true,
+  disableSources: true,
 };
