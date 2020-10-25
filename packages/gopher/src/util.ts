@@ -62,7 +62,7 @@ export class GopherItem {
 }
 
 /**
- * There are a lot of CRLF charcters thrown around in the Gopher dictionary, this function simply takes an input and returns a boolean if the input is an empty CRLF character
+ * There are a lot of CRLF characters thrown around in the Gopher dictionary, this function simply takes an input and returns a boolean if the input is an empty CRLF character
  */
 export function isNewLine(value: string) {
   return value === "\r\n" || value == "\n\r";

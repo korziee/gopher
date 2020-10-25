@@ -19,3 +19,11 @@ This repository houses the `@korziee/gopher` package which defines the core logi
 The `@korziee/gopher` package exports a few key utility classes that will help you get started, namely [`GopherItem`](https://korziee.github.io/gopher/classes/_index_.gopheritem.html) and [`GopherServer`](https://korziee.github.io/gopher/classes/_index_.gopherserver.html)
 
 Checkout the [`@korziee/gopher`](./packages/gopher/README.md) package for an example of how to get started a Gopher serving running in Node.
+
+## What's next?
+
+- Add debug mode (log out input, output, errors, etc.)
+- Add clearer logs for init (colours, etc.)
+- Create JSON plugin + example
+- Create Gophermap plugin + example
+- Create Gopher server CLI (w/ ability to select plugins?)
