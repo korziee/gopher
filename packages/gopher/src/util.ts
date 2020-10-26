@@ -1,4 +1,6 @@
-import { GopherItemTypes } from "./types";
+import Chalk from "chalk";
+
+import { GopherItemTypes, LogType } from "./types";
 
 /**
  * Gopher helper class for use with gopher plugins.
@@ -66,4 +68,47 @@ export class GopherItem {
  */
 export function isNewLine(value: string) {
   return value === "\r\n" || value == "\n\r";
+}
+
+export function log(type: LogType, message: string, data?: any) {
+  if (!process.env.DEBUG) {
+    return;
+  }
+
+  switch (type) {
+    case LogType.Info: {
+      console.log(Chalk.bold.greenBright("INFO:"), message);
+      break;
+    }
+    case LogType.Debug: {
+      console.log(Chalk.bold.blueBright("DEBUG:"), message);
+      break;
+    }
+    case LogType.Error: {
+      console.log(Chalk.bold.redBright("ERROR:"), message);
+      break;
+    }
+  }
+
+  if (data) {
+    // if it's a string we can manipulate and insert tabs so that the logs are clearer.
+    if (typeof data === "string") {
+      console.log(
+        data
+          .split("\n")
+          .map((d) => `  ${d}`)
+          .join("\n")
+      );
+    } else {
+      console.log(data);
+    }
+  }
+}
+
+export function humaniseControlCharacters(data: string) {
+  return data
+    .toString()
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t");
 }

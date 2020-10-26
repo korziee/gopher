@@ -1,7 +1,9 @@
 import * as net from "net";
 
-import { GopherItemTypes, GopherMap, GopherPlugin } from "./types";
-import { GopherItem, isNewLine } from "./util";
+import { GopherItemTypes, GopherMap, GopherPlugin, LogType } from "./types";
+import { GopherItem, humaniseControlCharacters, isNewLine, log } from "./util";
+
+const MAX_INPUT_LENGTH = 200;
 
 /**
  * Used to start a gopher server.
@@ -18,8 +20,14 @@ export class GopherServer {
 
   public addPlugin(plugin: GopherPlugin) {
     if (plugin.selector.search(/\s/) !== -1) {
-      throw new Error("Plugin selector cannot include any spaces");
+      const errorMessage = "Plugin selector cannot include any spaces";
+
+      log(LogType.Error, errorMessage);
+
+      throw new Error(errorMessage);
     }
+
+    log(LogType.Info, `adding ${plugin.selector} plugin`);
 
     this.plugins.push(plugin);
   }
@@ -59,7 +67,9 @@ export class GopherServer {
     const [, pluginHandler, ...pluginMessage] = input.split("/");
 
     // make sure message is not too long, we don't want to be spammed or have a memory attack occur.
-    if (input.length > 200) {
+    if (input.length > MAX_INPUT_LENGTH) {
+      log(LogType.Debug, `The input is above ${MAX_INPUT_LENGTH} characters`);
+
       return (
         new GopherItem(GopherItemTypes.Error, "Nice try...").serialize() + "."
       );
@@ -67,6 +77,11 @@ export class GopherServer {
 
     // unless an empty input for root, all requests require a prepended slash.
     if (!input.includes("/") && !isNewLine(input)) {
+      log(
+        LogType.Debug,
+        "The input is not a newline and does not contain a slash, all selectors must contain a slash if they do not contain a newline"
+      );
+
       return (
         new GopherItem(
           GopherItemTypes.Error,
@@ -83,10 +98,22 @@ export class GopherServer {
       if (this.plugins.length === 1) {
         const plugin = this.plugins[0];
 
+        log(
+          LogType.Debug,
+          `asking the ${plugin.selector} plugin to handle the input`
+        );
+
         const response = await plugin.handleSelector("\r\n");
 
         return this.serializePluginResponse(response, plugin.selector);
       } else {
+        log(
+          LogType.Debug,
+          `asking each plugin (${this.plugins
+            .map((p) => p.selector)
+            .join(", ")}) for their directory listings (\\r\\n)`
+        );
+
         return (
           this.plugins
             .map((plugin) =>
@@ -109,6 +136,11 @@ export class GopherServer {
 
     // if the pluginHandler does not exist in the plugins Map, we will not go further, as nothing exists
     if (!matchingPlugin) {
+      log(
+        LogType.Debug,
+        `there was no plugin found with the handler: ${input}`
+      );
+
       return (
         new GopherItem(
           GopherItemTypes.Error,
@@ -116,6 +148,11 @@ export class GopherServer {
         ).serialize() + "."
       );
     }
+
+    log(
+      LogType.Debug,
+      `asking the ${matchingPlugin.selector} plugin to handle the input`
+    );
 
     // we already know the parent exists here,
     // and now we know that it's not a root call to the parent.
@@ -135,21 +172,39 @@ export class GopherServer {
 
     this.server = net.createServer((socket) => {
       socket.once("data", async (data) => {
+        log(
+          LogType.Debug,
+          "socket opened and received the following data",
+          humaniseControlCharacters(data.toString())
+        );
+
         const input = this.cleanInput(data.toString());
         const gopherMap = await this.getGopherMap(input);
 
-        socket.write(gopherMap, () => socket.end());
+        log(
+          LogType.Debug,
+          "returning the following down the socket",
+          humaniseControlCharacters(gopherMap)
+        );
+
+        socket.write(gopherMap, () => {
+          log(LogType.Debug, "closing socket");
+          socket.end();
+        });
       });
 
-      socket.on("error", console.error);
+      socket.on("error", (error) => {
+        log(LogType.Error, "there was an error with the socket", error);
+      });
     });
 
     this.server.on("error", (err) => {
+      log(LogType.Error, "there was an error with the socket server", err);
       throw err;
     });
 
     this.server.listen(this.port, () => {
-      console.log(`Gopher server started on ${this.port}`);
+      log(LogType.Info, `Gopher server was started on port ${this.port}`);
     });
   }
 }

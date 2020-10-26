@@ -47,3 +47,9 @@ export interface GopherPlugin {
    */
   handleSelector(selector: string): Promise<GopherItem[] | string>;
 }
+
+export enum LogType {
+  Info = "info",
+  Debug = "debug",
+  Error = "error",
+}

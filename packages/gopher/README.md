@@ -68,6 +68,12 @@ server.addPlugin(new AnimalGopherPlugin());
 server.start();
 ```
 
+## Debugging
+
+Add the environment variable `DEBUG=true` before you start the node process, you will gain access to helpful log messages.
+
+![](./assets/log_example.png)
+
 ## Documentation
 
 The rest of the documentation (including useful types) can be found [here](https://korziee.github.io/gopher/)

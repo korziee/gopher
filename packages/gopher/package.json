@@ -12,7 +12,9 @@
   "directories": {
     "test": "tests"
   },
-  "dependencies": {},
+  "dependencies": {
+    "chalk": "^4.1.0"
+  },
   "scripts": {
     "pre-publish": "yarn tsc && yarn generate-docs && yarn version",
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -22,8 +22,8 @@ Checkout the [`@korziee/gopher`](./packages/gopher/README.md) package for an exa
 
 ## What's next?
 
-- Add debug mode (log out input, output, errors, etc.)
-- Add clearer logs for init (colours, etc.)
-- Create JSON plugin + example
-- Create Gophermap plugin + example
-- Create Gopher server CLI (w/ ability to select plugins?)
+- [x] Add debug mode (log out input, output, errors, etc.)
+- [x] Add clearer logs for init (colours, etc.)
+- [ ] Create JSON plugin + example
+- [ ] Create Gophermap plugin + example
+- [ ] Create Gopher server CLI (w/ ability to select plugins?)
