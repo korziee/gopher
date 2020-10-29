@@ -1,8 +1,15 @@
 {
   "name": "file-server",
   "version": "0.0.0",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "example": "rm -rf ./dist && yarn tsc && cp -R ./example/test-folder ./dist/example/test-folder && DEBUG=true node ./dist/example/example.js"
+  },
   "dependencies": {
-    "@korziee/gopher": "0.0.0-beta.5"
+    "@korziee/gopher": "0.0.0-beta.8"
   },
   "devDependencies": {
     "typescript": "^4.0.3"
