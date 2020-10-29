@@ -29,7 +29,6 @@ bootstrap();
 
 1. Pull down this monorepo from GitHub.
 2. Run `yarn install`
-<!-- NOTE: change to be file-plugin -->
-3. Run `cd packages/file-server`
+3. Run `cd packages/gopher-file-plugin`
 4. Run `yarn example`
 5. Use your Gopher client of choice to make a request to gopher://localhost:70
