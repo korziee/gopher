@@ -1,0 +1,19 @@
+{
+  "name": "@korziee/gopher-json-plugin",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "example": "yarn tsc && DEBUG=true node dist/example/index.js"
+  },
+  "dependencies": {
+    "@korziee/gopher": "0.0.0-beta.8",
+    "lodash.get": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/lodash.get": "^4.4.6",
+    "typescript": "^4.0.3"
+  }
+}
