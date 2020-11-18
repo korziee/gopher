@@ -2,7 +2,6 @@ import {
   GopherItem,
   GopherItemTypes,
   GopherPlugin,
-  GopherServer,
   isNewLine,
 } from "@korziee/gopher";
 import { KlondikeGame, Move } from "@korziee/klondike";
@@ -14,6 +13,7 @@ import {
   getCharacterForSuit,
 } from "./util";
 import { generateGridForGame, Grid } from "./draw";
+import { GameAction } from "./types";
 
 /**
  * Top Level Menu:
@@ -43,7 +43,7 @@ import { generateGridForGame, Grid } from "./draw";
  *
  */
 
-export class GopherKlondikePlugin implements GopherPlugin {
+export class KlondikeGopherPlugin implements GopherPlugin {
   selector = "klondike";
   descriptionShort = "A klondike/solitaire game for Gopher!";
 
@@ -71,22 +71,79 @@ export class GopherKlondikePlugin implements GopherPlugin {
     }
 
     if (selector === "start-game") {
-      return this.handleNewGameRequest();
+      let guid = uuid();
+      this.games[guid] = new KlondikeGame();
+
+      return this.handleExistingGame(guid, GameAction.Start, "");
     }
 
     if (selector.includes("game")) {
       const [, id, action, actionId] = selector.split("/");
-      return this.handleExistingGame(id, action, actionId);
+
+      return this.handleExistingGame(id, action as GameAction, actionId);
     }
 
     return "";
   }
 
-  private async handleNewGameRequest(): Promise<GopherItem[]> {
-    let guid = uuid();
-    this.games[guid] = new KlondikeGame();
+  private async handleGameAction(
+    game: KlondikeGame,
+    action: GameAction,
+    actionId?: string
+  ) {
+    switch (action) {
+      case GameAction.Start:
+        game.deal();
+        game.draw();
 
-    return this.handleExistingGame(guid, "start", "");
+        break;
+      case GameAction.Draw:
+        game.draw();
+
+        break;
+      case GameAction.Move:
+        if (!actionId) {
+          throw new Error("Action ID required for move");
+        }
+
+        const move = game.getAvailableMoves()[parseInt(actionId, 10)];
+        game.makeMove(move);
+
+        break;
+      case GameAction.Restart:
+        while (game.undo()) {}
+
+        break;
+      case GameAction.Undo:
+        game.undo();
+
+        break;
+      default:
+        throw new Error(`unknown game action ${action}`);
+    }
+  }
+
+  private async handleExistingGame(
+    gameId: string,
+    action: GameAction,
+    actionId: string
+  ): Promise<GopherItem[]> {
+    const game = this.games[gameId];
+
+    this.handleGameAction(game, action, actionId);
+
+    const gopher: GopherItem[] = [];
+
+    // add the game board to the gopher response
+    gopher.push(...this.generateGopherHeader());
+    gopher.push(GopherItem.generateEmptyItem());
+    gopher.push(...this.transformGridToGopher(generateGridForGame(game)));
+    gopher.push(GopherItem.generateEmptyItem());
+    gopher.push(...this.getMovesForGame(game, gameId));
+    gopher.push(GopherItem.generateEmptyItem());
+    gopher.push(...this.getGameOptions(game, gameId));
+
+    return gopher;
   }
 
   private createGopherItemForMove(
@@ -235,78 +292,4 @@ export class GopherKlondikePlugin implements GopherPlugin {
       ),
     ];
   }
-
-  // action: "draw" | "start" | "move"
-  private async handleExistingGame(
-    gameId: string,
-    action: string,
-    actionId: string
-  ): Promise<GopherItem[]> {
-    const game = this.games[gameId];
-
-    if (action === "start") {
-      game.deal();
-      game.draw();
-    }
-
-    if (action === "move") {
-      const move = game.getAvailableMoves()[parseInt(actionId, 10)];
-
-      game.makeMove(move);
-    }
-
-    if (action === "draw") {
-      game.draw();
-    }
-
-    if (action === "undo") {
-      game.undo();
-    }
-
-    if (action === "restart") {
-      while (game.undo()) {}
-    }
-
-    const gopher: GopherItem[] = [];
-
-    const gameGrid = generateGridForGame(game);
-
-    // add the game board to the gopher response
-    gopher.push(...this.generateGopherHeader());
-    gopher.push(GopherItem.generateEmptyItem());
-    gopher.push(...this.transformGridToGopher(gameGrid));
-    gopher.push(GopherItem.generateEmptyItem());
-    gopher.push(...this.getMovesForGame(game, gameId));
-    gopher.push(GopherItem.generateEmptyItem());
-    gopher.push(...this.getGameOptions(game, gameId));
-
-    return gopher;
-  }
 }
-
-// game.tableau
-//   .getTableauPile(1)
-//   .setCards([
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//     new Card("Spades", "10", true),
-//   ]);
-
-async function bootstrap() {
-  process.env.DEBUG = "true";
-  const server = new GopherServer("localhost", 70);
-
-  server.addPlugin(new GopherKlondikePlugin());
-
-  server.start();
-}
-
-bootstrap();

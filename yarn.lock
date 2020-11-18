@@ -2,17 +2,18 @@
 # yarn lockfile v1
 
 
-"@korziee/helpers@git+ssh://git@github.com:korziee/helpers.git":
+"@korziee/helpers@1.0.0":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:korziee/helpers.git#3b088ccd20c619a1b2c10ab2210b8834bb7206c5"
+  resolved "https://registry.yarnpkg.com/@korziee/helpers/-/helpers-1.0.0.tgz#b74bec094e1d625ff6562373cd390764d3d1f3b7"
+  integrity sha512-gxNRe7vYfhkCXxzer3K7+RBzKumGsrrHNjpM0FWu1BXtGhz/cejlL228Kt1goFu4iWvKIextvDC88/zFnwLSjA==
 
-"@korziee/klondike@^0.0.0-beta.0":
-  version "0.0.0-beta.0"
-  resolved "https://registry.yarnpkg.com/@korziee/klondike/-/klondike-0.0.0-beta.0.tgz#cc33fe62411dcc4748246b079c5538c6df9d75ff"
-  integrity sha512-r84RO2PDC95dBptOcfa9H9OcvVr4TNeNglyVb+Uq4obyDwmBmJ+bNnZ/x1xpG4x/ZWS/sCL2KUAdDJyEYt3k0Q==
+"@korziee/klondike@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@korziee/klondike/-/klondike-0.0.5.tgz#a72ce9d059b10772213d6c9eaf06cb05b79f6a58"
+  integrity sha512-LjViRfMxLgEq2/ftp/TIW6Is1er15QluFlqW0x2wNPBgtfdxe95lSQWYzpvt1BC53eboNrsD6FNhE1XxlJu+rw==
   dependencies:
-    "@korziee/helpers" "git+ssh://git@github.com:korziee/helpers.git"
-    lodash "^4.17.15"
+    "@korziee/helpers" "1.0.0"
+    lodash.isequal "^4.5.0"
 
 "@types/lodash.get@^4.4.6":
   version "4.4.6"
@@ -241,6 +242,11 @@ lodash.get@^4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
   integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
+
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
 
 lodash@^4.17.15:
   version "4.17.20"

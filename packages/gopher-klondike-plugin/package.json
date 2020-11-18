@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "start": "yarn tsc-watch --onSuccess \"node ./dist/index\""
+    "start": "yarn tsc-watch --onSuccess \"node ./dist/example/index.js\""
   },
   "devDependencies": {
     "@types/uuid": "^8.3.0",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@korziee/gopher": "^0.0.0-beta.8",
-    "@korziee/klondike": "^0.0.0-beta.0",
+    "@korziee/klondike": "0.0.5",
     "uuid": "^8.3.1"
   }
 }
