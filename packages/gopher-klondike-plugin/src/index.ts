@@ -29,7 +29,7 @@ import { generateGridForGame, Grid } from "./draw";
  * Improvements
  *  - Top level game title (centred) - done
  *  - Space between the game board and the moves - done
- *  - Think of a better naming scheme for the moves
+ *  - Think of a better naming scheme for the moves - done
  *  - Create top level menu that explains the game and where users can find out more information -doneish
  *    - also include the fact that it was tested using a mono spaced font and Gophie! -done
  *  - Separate Menus - done
@@ -102,15 +102,31 @@ export class GopherKlondikePlugin implements GopherPlugin {
 
       description = `${getCharacterForRank(
         firstCard.getRank()
-      )}${getCharacterForSuit(firstCard.getSuit())} ... ${getCharacterForRank(
-        lastCard.getRank()
-      )}${getCharacterForSuit(lastCard.getSuit())}`;
+      )}${getCharacterForSuit(firstCard.getSuit())} (pile:${
+        move.meta?.fromPile
+      }) >>> ${getCharacterForRank(lastCard.getRank())}${getCharacterForSuit(
+        lastCard.getSuit()
+      )} (pile:${move.meta?.toPile})`;
     } else {
       const card = move.cards[0];
 
+      let moveInfo: string = "";
+
+      if (move.from === "tableau") {
+        moveInfo += `(${move.meta?.fromPile})`;
+      }
+
+      if (move.to === "tableau") {
+        moveInfo += ` >>> tableau (${move.meta?.toPile})`;
+      }
+
+      if (move.to === "foundation") {
+        moveInfo += ` >>> foundation`;
+      }
+
       description = `${getCharacterForRank(
         card.getRank()
-      )}${getCharacterForSuit(card.getSuit())}`;
+      )}${getCharacterForSuit(card.getSuit())} ${moveInfo}`;
     }
 
     return new GopherItem(
